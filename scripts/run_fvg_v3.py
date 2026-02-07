@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FVG V3 策略：全面指标 + Triple Barrier + Grid Search。
+FVG V3 策略：全面指标 + Triple Barrier + Grid Search
 
 Pipeline:
   1. 加载数据 (aggTrades + klines + 可选 orderbook)
@@ -13,8 +13,15 @@ Pipeline:
   8. 回测 + 保存结果
 
 Usage:
+    # Triple Barrier 目标（默认）
+    python scripts/run_fvg_v3.py --symbol BTC/USDT --start-date 2022-10-01 --end-date 2022-10-04 --use-orderbook
+    # 原始标签（适合 TB 标签不均衡时）
+    python scripts/run_fvg_v3.py --symbol BTC/USDT --start-date 2022-10-01 --end-date 2022-10-04 --use-orderbook --target fill_direction
+    python scripts/run_fvg_v3.py --symbol BTC/USDT --start-date 2022-10-01 --end-date 2022-10-04 --use-orderbook --target future_ret_10
+    # Grid search
+    python scripts/run_fvg_v3.py --symbol BTC/USDT --start-date 2022-10-01 --end-date 2022-10-04 --use-orderbook --grid-search
+    # 近期数据（无 orderbook）
     python scripts/run_fvg_v3.py --symbol SOL/USDT --days 3 --freq 1min
-    python scripts/run_fvg_v3.py --symbol SOL/USDT --days 5 --grid-search
 """
 from __future__ import annotations
 
@@ -48,7 +55,7 @@ logger = logging.getLogger(__name__)
 
 # Optional
 try:
-    from utilities.lakeapi_loader import load_orderbook
+    from utilities.lakeapi_loader import load_lakeapi_orderbook
     HAS_LAKEAPI = True
 except ImportError:
     HAS_LAKEAPI = False
@@ -264,8 +271,10 @@ def grid_search(feature_df, ohlcv, trained_model_result):
 
 def main():
     parser = argparse.ArgumentParser(description="FVG V3 Strategy")
-    parser.add_argument("--symbol", default="SOL/USDT")
+    parser.add_argument("--symbol", default="BTC/USDT")
     parser.add_argument("--days", type=int, default=3)
+    parser.add_argument("--start-date", type=str, default=None, help="Explicit start date YYYY-MM-DD")
+    parser.add_argument("--end-date", type=str, default=None, help="Explicit end date YYYY-MM-DD")
     parser.add_argument("--freq", default="1min", help="OHLCV resample frequency")
     parser.add_argument("--min-gap-pct", type=float, default=0.02, help="Min FVG gap %")
     parser.add_argument("--tb-upper", type=float, default=0.5, help="Triple Barrier upper %")
@@ -274,14 +283,34 @@ def main():
     parser.add_argument("--target-horizon", type=int, default=30, help="Which TB horizon to predict")
     parser.add_argument("--grid-search", action="store_true")
     parser.add_argument("--use-orderbook", action="store_true")
+    parser.add_argument(
+        "--target", default="tb_direction",
+        choices=[
+            "tb_direction",     # Triple Barrier: 预测上涨方向 (binary: label=1 vs rest)
+            "tb_trend",         # Triple Barrier: 预测趋势 (binary: |label|=1 vs 0)
+            "tb_multiclass",    # Triple Barrier: 三分类 (-1/0/1)
+            "fill_direction",   # 原始标签: FVG 回填后价格方向 (binary)
+            "future_ret_5",     # 原始标签: 未来5根K线涨跌方向 (binary)
+            "future_ret_10",    # 原始标签: 未来10根K线涨跌方向 (binary)
+            "future_ret_20",    # 原始标签: 未来20根K线涨跌方向 (binary)
+        ],
+        help="预测目标类型：tb_* 使用 Triple Barrier，其余使用原始标签（适合标签不均衡时）",
+    )
     args = parser.parse_args()
 
-    end_date = date.today()
-    start_date = end_date - timedelta(days=args.days)
+    # Date range
+    if args.start_date and args.end_date:
+        start_date = date.fromisoformat(args.start_date)
+        end_date = date.fromisoformat(args.end_date)
+    else:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=args.days)
+
+    n_days = (end_date - start_date).days
 
     # ── 1. Load data ──
-    logger.info(f"═══ FVG V3 Strategy ═══")
-    logger.info(f"Symbol: {args.symbol} | {start_date} -> {end_date}")
+    logger.info("═══ FVG V3 Strategy ═══")
+    logger.info(f"Symbol: {args.symbol} | {start_date} -> {end_date} ({n_days}d)")
 
     logger.info("[1/7] Loading aggTrades...")
     trades = load_agg_trades(args.symbol, start_date, end_date)
@@ -294,15 +323,29 @@ def main():
     ohlcv = resample_trades_to_ohlcv(trades, freq=args.freq)
     logger.info(f"  {len(ohlcv):,} bars ({args.freq})")
 
-    # Optional: orderbook
+    # Optional: orderbook (lake-api sample: BTC-USDT 2022-10-01 ~ 2022-10-03)
     book = None
     if args.use_orderbook and HAS_LAKEAPI:
-        logger.info("[1/7] Loading orderbook (lake-api)...")
+        logger.info("[1/7] Loading orderbook (lake-api sample)...")
         try:
-            book = load_orderbook(args.symbol, start_date, end_date)
-            logger.info(f"  Loaded {len(book):,} snapshots")
+            # lake-api symbol format: BTC-USDT
+            lake_symbol = args.symbol.replace("/", "-")
+            book = load_lakeapi_orderbook(
+                days=n_days, symbol=lake_symbol,
+                resample_freq="1s", depth_levels=10,
+            )
+            if book is not None and not book.empty:
+                # 确保 orderbook 有时间索引
+                if "origin_time" in book.columns:
+                    book = book.set_index(pd.to_datetime(book["origin_time"])).sort_index()
+                    book = book.drop(columns=["origin_time"], errors="ignore")
+                logger.info(f"  Loaded {len(book):,} orderbook snapshots")
+            else:
+                logger.warning("  Orderbook empty")
+                book = None
         except Exception as e:
             logger.warning(f"  Orderbook unavailable: {e}")
+            book = None
 
     # ── 2. Taker order grouping ──
     logger.info("[2/7] Grouping taker orders...")
@@ -333,8 +376,11 @@ def main():
     )
     logger.info(f"  Feature matrix: {feat_df.shape}")
 
-    # ── 5. Triple Barrier labels ──
-    logger.info("[5/7] Adding Triple Barrier labels...")
+    # ── 5. Labels ──
+    logger.info("[5/7] Building labels...")
+
+    # Always compute Triple Barrier labels (even if not used as target,
+    # they're useful for analysis)
     feat_df = add_triple_barrier_labels(
         feat_df, ohlcv,
         horizons=args.tb_horizons,
@@ -342,27 +388,63 @@ def main():
         lower_pct=args.tb_lower,
     )
 
-    target_col = f"tb_label_{args.target_horizon}"
-    if target_col not in feat_df.columns:
-        logger.error(f"Target column {target_col} not found")
+    tb_col = f"tb_label_{args.target_horizon}"
+
+    # Derived columns (always created for downstream use)
+    if tb_col in feat_df.columns:
+        feat_df["target_trend"] = (feat_df[tb_col] != 0).astype(int)
+        feat_df["target_direction"] = feat_df[tb_col].map({1: 1, 0: 0, -1: 0}).fillna(0).astype(int)
+        feat_df["target_multiclass"] = (feat_df[tb_col] + 1).astype(int)  # 0/1/2
+
+    # ── Select target based on --target flag ──
+    target_name = args.target
+    if target_name == "tb_direction":
+        train_target = "target_direction"
+    elif target_name == "tb_trend":
+        train_target = "target_trend"
+    elif target_name == "tb_multiclass":
+        train_target = "target_multiclass"
+    elif target_name == "fill_direction":
+        # 原始标签：FVG 回填后方向
+        train_target = "label_direction_10"
+        if train_target not in feat_df.columns:
+            # fallback
+            for h in [5, 10, 20]:
+                c = f"label_direction_{h}"
+                if c in feat_df.columns:
+                    train_target = c
+                    break
+    elif target_name.startswith("future_ret_"):
+        horizon = target_name.split("_")[-1]
+        train_target = f"label_direction_{horizon}"
+    else:
+        train_target = "target_direction"
+
+    if train_target not in feat_df.columns:
+        logger.error(f"Target column '{train_target}' not found in features. "
+                     f"Available: {[c for c in feat_df.columns if 'label' in c or 'target' in c]}")
         return
 
-    # Remap labels: -1/0/1 -> 0/1/2 for multiclass or binary
-    # For simplicity: predict "will there be a strong trend?" (1 or -1 vs 0)
-    feat_df["target_trend"] = (feat_df[target_col] != 0).astype(int)
-    # Direction target
-    feat_df["target_direction"] = feat_df[target_col].map({1: 1, 0: 0, -1: 0}).fillna(0).astype(int)
+    label_dist = feat_df[train_target].value_counts().to_dict()
+    logger.info(f"  Target: --target={target_name} -> column='{train_target}'")
+    logger.info(f"  Label distribution: {label_dist}")
 
-    label_dist = feat_df[target_col].value_counts().to_dict()
-    logger.info(f"  Label distribution (horizon={args.target_horizon}): {label_dist}")
+    # 检查是否严重不均衡并提示
+    if len(label_dist) >= 2:
+        majority = max(label_dist.values())
+        minority = min(label_dist.values())
+        ratio = majority / (minority + 1)
+        if ratio > 5:
+            logger.warning(f"  ⚠ Label imbalance ratio: {ratio:.1f}x — "
+                           f"consider --target fill_direction or future_ret_10")
 
     feature_cols = get_v3_feature_columns(feat_df)
     logger.info(f"  Using {len(feature_cols)} features")
 
     # ── 6. Train model ──
     logger.info("[6/7] Training model...")
-    # Train on: "will there be a trend?" (binary)
-    trained = train_v3_model(feat_df, "target_direction", feature_cols)
+    logger.info(f"  Target column: {train_target}")
+    trained = train_v3_model(feat_df, train_target, feature_cols)
 
     # ── 7. Backtest ──
     logger.info("[7/7] Backtesting...")
@@ -404,8 +486,11 @@ def main():
     # Save summary
     summary = {
         "symbol": args.symbol,
-        "days": args.days,
+        "start_date": str(start_date),
+        "end_date": str(end_date),
         "freq": args.freq,
+        "target": args.target,
+        "train_target_column": train_target,
         "n_trades": len(trades),
         "n_taker_orders": len(taker_orders),
         "n_fvgs": len(fvgs),

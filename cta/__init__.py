@@ -2,10 +2,13 @@
 CTA 策略模块。
 
 子模块：
-- fvg: Fair Value Gap 策略（检测、特征、模型）
-- microstructure: 微观结构指标（price impact、spread、order flow、liquidity）
-- metrics: 准确性评估
-- backtest: 统一回测引擎
+- fvg: Fair Value Gap 策略（检测、特征 V1/V3、模型）
+- microstructure: 微观结构高级检测器（基于 indicators/ 基础指标）
+
+回测和标签相关功能已迁移至：
+- backtest/metrics.py: 回测统计指标
+- backtest/labeling.py: Triple Barrier 等标签方法
+- backtest/engine.py: 通用回测引擎
 """
 from .microstructure import (
     compute_tick_price_impact,

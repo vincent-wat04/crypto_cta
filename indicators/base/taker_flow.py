@@ -65,59 +65,102 @@ def group_taker_orders(trades: pd.DataFrame) -> pd.DataFrame:
     )
     df["taker_id"] = is_new_taker.cumsum()
 
-    # ── 2. 按 taker_id 聚合 ──
-    def _agg_taker(g):
-        n_agg = len(g)
-        total_vol = g["amount"].sum()
-        total_cost = g["cost"].sum() if "cost" in g.columns else (g["price"] * g["amount"]).sum()
-        total_fills = g["n_trades_in_agg"].sum() if "n_trades_in_agg" in g.columns else n_agg
+    # ── 2. 向量化聚合（避免 groupby.apply 对大数据集的性能瓶颈）──
+    tid = df["taker_id"].values
+    prices = df["price"].values
+    amounts = df["amount"].values
+    timestamps = df["timestamp"].values
+    sides = df["side"].values
 
-        first_price = g["price"].iloc[0]
-        last_price = g["price"].iloc[-1]
-        vwap = total_cost / (total_vol + 1e-15)
+    # cost
+    if "cost" in df.columns:
+        costs = df["cost"].values
+    else:
+        costs = prices * amounts
 
-        price_impact = abs(last_price - first_price)
-        mid = (first_price + last_price) / 2 + 1e-15
-        price_impact_pct = price_impact / mid * 100
+    # n_trades_in_agg
+    if "n_trades_in_agg" in df.columns:
+        n_fills_arr = df["n_trades_in_agg"].values
+    else:
+        n_fills_arr = np.ones(len(df), dtype=np.float64)
 
-        ts_first = g["timestamp"].iloc[0]
-        ts_last = g["timestamp"].iloc[-1]
-        if hasattr(ts_first, "timestamp"):
-            duration_ms = (ts_last - ts_first).total_seconds() * 1000
-        else:
-            duration_ms = 0
+    # 标记每个 taker group 的首行和尾行
+    first_mask = np.empty(len(df), dtype=bool)
+    first_mask[0] = True
+    first_mask[1:] = tid[1:] != tid[:-1]
 
-        # 量的衰减：最后一档 / 第一档
-        vol_first = g["amount"].iloc[0]
-        vol_last = g["amount"].iloc[-1]
-        volume_taper = vol_last / (vol_first + 1e-15) if n_agg > 1 else 1.0
+    last_mask = np.empty(len(df), dtype=bool)
+    last_mask[-1] = True
+    last_mask[:-1] = tid[:-1] != tid[1:]
 
-        # 每档 fill 数分布
-        fills_per_level = g["n_trades_in_agg"].values if "n_trades_in_agg" in g.columns else np.ones(n_agg)
-        fills_mean = fills_per_level.mean()
-        fills_std = fills_per_level.std() if n_agg > 1 else 0
+    # 用 groupby agg（高效原生聚合，不用 apply）
+    gb = df.groupby("taker_id", sort=False)
+    agg_result = gb.agg(
+        levels_swept=("amount", "size"),
+        total_volume=("amount", "sum"),
+    )
 
-        return pd.Series({
-            "timestamp": ts_first,
-            "side": g["side"].iloc[0],
-            "levels_swept": n_agg,
-            "total_volume": total_vol,
-            "total_cost": total_cost,
-            "total_fills": total_fills,
-            "first_price": first_price,
-            "last_price": last_price,
-            "vwap": vwap,
-            "price_impact": price_impact,
-            "price_impact_pct": price_impact_pct,
-            "impact_per_volume": price_impact / (total_vol + 1e-15),
-            "impact_per_level": price_impact / n_agg if n_agg > 0 else 0,
-            "duration_ms": duration_ms,
-            "volume_taper": volume_taper,
-            "fills_per_level_mean": fills_mean,
-            "fills_per_level_std": fills_std,
-        })
+    # cost groupby sum
+    df["_cost"] = costs
+    df["_nfills"] = n_fills_arr
+    cost_fills = df.groupby("taker_id", sort=False).agg(
+        total_cost=("_cost", "sum"),
+        total_fills=("_nfills", "sum"),
+        fills_mean=("_nfills", "mean"),
+        fills_std=("_nfills", "std"),
+    )
+    agg_result = agg_result.join(cost_fills)
+    agg_result["fills_std"] = agg_result["fills_std"].fillna(0)
 
-    taker_orders = df.groupby("taker_id").apply(_agg_taker).reset_index()
+    # first/last per group (from boolean masks)
+    first_idx = np.where(first_mask)[0]
+    last_idx = np.where(last_mask)[0]
+
+    agg_result["timestamp"] = timestamps[first_idx]
+    agg_result["side"] = sides[first_idx]
+    agg_result["first_price"] = prices[first_idx]
+    agg_result["last_price"] = prices[last_idx]
+
+    first_amount = amounts[first_idx]
+    last_amount = amounts[last_idx]
+
+    ts_first = timestamps[first_idx]
+    ts_last = timestamps[last_idx]
+
+    # 向量化计算派生字段
+    fp = agg_result["first_price"].values
+    lp = agg_result["last_price"].values
+    tv = agg_result["total_volume"].values
+    tc = agg_result["total_cost"].values
+    ls = agg_result["levels_swept"].values.astype(float)
+
+    agg_result["vwap"] = tc / (tv + 1e-15)
+    price_impact = np.abs(lp - fp)
+    agg_result["price_impact"] = price_impact
+    mid = (fp + lp) / 2 + 1e-15
+    agg_result["price_impact_pct"] = price_impact / mid * 100
+    agg_result["impact_per_volume"] = price_impact / (tv + 1e-15)
+    agg_result["impact_per_level"] = np.where(ls > 0, price_impact / ls, 0)
+
+    # duration
+    ts_f = pd.to_datetime(ts_first)
+    ts_l = pd.to_datetime(ts_last)
+    agg_result["duration_ms"] = (ts_l - ts_f).total_seconds() * 1000
+
+    # volume taper
+    taper = np.where(ls > 1, last_amount / (first_amount + 1e-15), 1.0)
+    agg_result["volume_taper"] = taper
+
+    # rename fills columns
+    agg_result = agg_result.rename(columns={
+        "fills_mean": "fills_per_level_mean",
+        "fills_std": "fills_per_level_std",
+    })
+
+    # Clean up temp columns
+    df.drop(columns=["_cost", "_nfills"], inplace=True, errors="ignore")
+
+    taker_orders = agg_result.reset_index()
     taker_orders["timestamp"] = pd.to_datetime(taker_orders["timestamp"])
     return taker_orders.sort_values("timestamp").reset_index(drop=True)
 

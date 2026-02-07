@@ -32,14 +32,22 @@ except ImportError:
     ccxt = None
 
 
+_exchange_cache = {}
+
+
 def _get_exchange(api_key: str = "", api_secret: str = ""):
     if ccxt is None:
         raise ImportError("pip install ccxt")
-    return ccxt.binance({
-        "apiKey": api_key or None,
-        "secret": api_secret or None,
-        "enableRateLimit": True,
-    })
+    key = (api_key, api_secret)
+    if key not in _exchange_cache:
+        ex = ccxt.binance({
+            "apiKey": api_key or None,
+            "secret": api_secret or None,
+            "enableRateLimit": True,
+        })
+        ex.load_markets()
+        _exchange_cache[key] = ex
+    return _exchange_cache[key]
 
 
 # ─────────────────────────────────────────────────────────
@@ -99,61 +107,109 @@ def load_agg_trades(
 def _fetch_agg_trades_day(
     symbol: str, dt: date, api_key: str = "", api_secret: str = "",
 ) -> pd.DataFrame:
-    """获取单天 aggTrades，直接调 Binance REST API 保留 f/l 字段。"""
+    """
+    获取单天 aggTrades，直接调 Binance REST API 保留 f/l 字段。
+
+    策略：先用 startTime 拿第一批（获得起始 fromId），
+    然后用 fromId 分页（比 startTime 快 10x+）。
+    """
     exchange = _get_exchange(api_key, api_secret)
     market = exchange.market(symbol)
-    binance_symbol = market["id"]  # e.g. "SOLUSDT"
+    binance_symbol = market["id"]  # e.g. "BTCUSDT"
 
     start_ms = int(datetime.combine(dt, datetime.min.time()).timestamp() * 1000)
     end_ms = start_ms + 86400_000
 
     all_records = []
-    current_start = start_ms
+    n_requests = 0
 
-    while current_start < end_ms:
+    # Step 1: 用 startTime 获取当天第一批，拿到起始 aggTradeId
+    try:
+        first_batch = exchange.publicGetAggTrades({
+            "symbol": binance_symbol,
+            "startTime": start_ms,
+            "limit": 1000,
+        })
+        n_requests += 1
+    except Exception as e:
+        logger.warning("Error fetching first batch: %s", e)
+        return pd.DataFrame()
+
+    if not first_batch:
+        return pd.DataFrame()
+
+    # 解析第一批
+    for r in first_batch:
+        ts = int(r["T"])
+        if ts >= end_ms:
+            break
+        all_records.append(_parse_agg_trade(r))
+
+    last_id = int(first_batch[-1]["a"])
+
+    # Step 2: 用 fromId 分页（Binance 对 fromId 查询效率远高于 startTime）
+    while True:
         try:
-            # 直接调 Binance REST API 保留所有字段
-            params = {
+            batch = exchange.publicGetAggTrades({
                 "symbol": binance_symbol,
-                "startTime": current_start,
-                "endTime": min(current_start + 3600_000, end_ms),  # 1h chunks
+                "fromId": last_id + 1,
                 "limit": 1000,
-            }
-            response = exchange.publicGetAggTrades(params)
-
-            if not response:
-                current_start += 3600_000
-                continue
-
-            for r in response:
-                ts = int(r["T"])
-                all_records.append({
-                    "timestamp": pd.Timestamp(ts, unit="ms", tz="UTC"),
-                    "price": float(r["p"]),
-                    "amount": float(r["q"]),
-                    "side": "sell" if r["m"] else "buy",  # m=True -> buyer is maker -> taker is seller
-                    "cost": float(r["p"]) * float(r["q"]),
-                    "agg_trade_id": int(r["a"]),
-                    "first_trade_id": int(r["f"]),
-                    "last_trade_id": int(r["l"]),
-                    "n_trades_in_agg": int(r["l"]) - int(r["f"]) + 1,
-                })
-
-            last_ts = int(response[-1]["T"])
-            if last_ts >= end_ms - 1:
-                break
-            current_start = last_ts + 1
-            time.sleep(0.1)
-
+            })
+            n_requests += 1
         except Exception as e:
-            logger.warning(f"Error fetching aggTrades: {e}")
-            current_start += 3600_000
+            logger.warning("Error fetching aggTrades fromId=%s: %s", last_id + 1, e)
             time.sleep(1)
+            continue
+
+        if not batch:
+            break
+
+        hit_end = False
+        for r in batch:
+            ts = int(r["T"])
+            if ts >= end_ms:
+                hit_end = True
+                break
+            all_records.append(_parse_agg_trade(r))
+
+        last_id = int(batch[-1]["a"])
+
+        if hit_end or len(batch) < 1000:
+            break
+
+        # Rate limiting: ~10 req/s is safe for public API
+        if n_requests % 10 == 0:
+            time.sleep(0.5)
+            if n_requests % 100 == 0:
+                logger.info(
+                    "  ... %d requests, %d records so far",
+                    n_requests, len(all_records),
+                )
+
+    logger.info(
+        "  Fetched %d aggTrades in %d requests for %s",
+        len(all_records), n_requests, dt.isoformat(),
+    )
 
     if not all_records:
         return pd.DataFrame()
 
     return pd.DataFrame(all_records)
+
+
+def _parse_agg_trade(r: dict) -> dict:
+    """Parse a single aggTrade response dict."""
+    return {
+        "timestamp": pd.Timestamp(int(r["T"]), unit="ms", tz="UTC"),
+        "price": float(r["p"]),
+        "amount": float(r["q"]),
+        "side": "sell" if r["m"] else "buy",
+        "cost": float(r["p"]) * float(r["q"]),
+        "agg_trade_id": int(r["a"]),
+        "first_trade_id": int(r["f"]),
+        "last_trade_id": int(r["l"]),
+        "n_trades_in_agg": int(r["l"]) - int(r["f"]) + 1,
+    }
 
 
 # ─────────────────────────────────────────────────────────

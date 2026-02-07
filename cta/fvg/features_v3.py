@@ -33,6 +33,19 @@ DEFAULT_FEATURE_WINDOWS = {
 }
 
 
+def _tz_normalize(ts: pd.Timestamp, ref_index: pd.Index) -> pd.Timestamp:
+    """确保 ts 和 ref_index 的时区一致。"""
+    idx_tz = getattr(ref_index, "tz", None)
+    ts_tz = getattr(ts, "tz", None) or getattr(ts, "tzinfo", None)
+    if idx_tz is None and ts_tz is not None:
+        # indicator 是 tz-naive，event 是 tz-aware → 去掉 tz
+        return ts.tz_localize(None)
+    if idx_tz is not None and ts_tz is None:
+        # indicator 是 tz-aware，event 是 tz-naive → 加 tz
+        return ts.tz_localize(idx_tz)
+    return ts
+
+
 def _resample_indicator_at_event(
     indicator: pd.Series,
     event_time: pd.Timestamp,
@@ -42,6 +55,7 @@ def _resample_indicator_at_event(
 ) -> Dict[str, float]:
     """在事件时间点前后提取指标统计量。"""
     feats = {}
+    event_time = _tz_normalize(event_time, indicator.index)
 
     # Pre-event window
     pre_start = event_time - pd.Timedelta(milliseconds=pre_ms)
@@ -257,14 +271,21 @@ def _extract_taker_features_at_event(
     post_ms: int,
 ) -> Dict[str, float]:
     """从 taker orders 中提取事件前后的特征。"""
+    # 统一时区
+    to_ts = taker_orders["timestamp"]
+    if to_ts.dt.tz is None and getattr(event_time, "tzinfo", None) is not None:
+        event_time = event_time.tz_localize(None)
+    elif to_ts.dt.tz is not None and getattr(event_time, "tzinfo", None) is None:
+        event_time = event_time.tz_localize(to_ts.dt.tz)
+
     pre_start = event_time - pd.Timedelta(milliseconds=pre_ms)
     post_end = event_time + pd.Timedelta(milliseconds=post_ms)
 
     pre = taker_orders[
-        (taker_orders["timestamp"] >= pre_start) & (taker_orders["timestamp"] < event_time)
+        (to_ts >= pre_start) & (to_ts < event_time)
     ]
     post = taker_orders[
-        (taker_orders["timestamp"] >= event_time) & (taker_orders["timestamp"] < post_end)
+        (to_ts >= event_time) & (to_ts < post_end)
     ]
 
     feats = {}
@@ -346,6 +367,11 @@ def add_triple_barrier_labels(
 
         for _, row in feature_df.iterrows():
             ts = row["timestamp"]
+            # 统一时区
+            if tb.index.tz is None and getattr(ts, "tzinfo", None) is not None:
+                ts = ts.tz_localize(None)
+            elif tb.index.tz is not None and getattr(ts, "tzinfo", None) is None:
+                ts = ts.tz_localize(tb.index.tz)
             if ts in tb.index:
                 labels.append(int(tb.loc[ts, "label"]))
                 barriers.append(tb.loc[ts, "barrier_hit"])
@@ -371,7 +397,8 @@ def get_v3_feature_columns(feature_df: pd.DataFrame) -> List[str]:
     排除标签列、timestamp、fvg_status 等。
     """
     exclude_prefixes = ("label_", "tb_label", "tb_barrier", "tb_bars", "tb_ret",
-                        "future_ret", "timestamp", "fvg_status")
+                        "future_ret", "timestamp", "fvg_status",
+                        "target_", "pred", "proba")
     return [
         c for c in feature_df.columns
         if not any(c.startswith(p) for p in exclude_prefixes)
