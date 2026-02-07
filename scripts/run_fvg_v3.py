@@ -474,7 +474,12 @@ def main():
         print(grid_df.head(10).to_string())
 
     # ── Save results ──
-    results_dir = DataPaths.backtest_dir("fvg_v3")
+    # 按 币种 / 日期范围_目标 分目录，避免实验互相覆盖
+    sym_slug = args.symbol.replace("/", "_")
+    run_id = f"{start_date}_{end_date}_{args.target}"
+    results_dir = (
+        DataPaths.data / "backtest_results" / "fvg_v3" / sym_slug / run_id
+    )
     results_dir.mkdir(parents=True, exist_ok=True)
 
     feat_df.to_parquet(results_dir / "features_v3.parquet", index=False)
@@ -491,14 +496,26 @@ def main():
         "freq": args.freq,
         "target": args.target,
         "train_target_column": train_target,
-        "n_trades": len(trades),
+        "label_distribution": {str(k): int(v) for k, v in label_dist.items()},
+        "n_agg_trades": len(trades),
         "n_taker_orders": len(taker_orders),
         "n_fvgs": len(fvgs),
+        "n_fvgs_bullish": n_bullish,
+        "n_fvgs_bearish": n_bearish,
         "n_features": len(feature_cols),
+        "has_orderbook": book is not None,
         "cv_accuracy": trained["cv_accuracy"],
+        "train_accuracy": trained["train_report"]["accuracy"],
         "backtest_metrics": metrics,
         "top_features": [(n, float(v)) for n, v in trained["top_features"][:10]],
     }
+    if args.grid_search and grid_df is not None and not grid_df.empty:
+        best_row = grid_df.iloc[0].to_dict()
+        summary["grid_search_best"] = {
+            k: (float(v) if isinstance(v, (np.floating, float)) else int(v) if isinstance(v, (np.integer, int)) else v)
+            for k, v in best_row.items()
+        }
+
     with open(results_dir / "summary.json", "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, default=str)
 
