@@ -1,0 +1,21 @@
+# Solana 微观结构反转 + Polymarket 交易系统
+# 兼容 Python 3.9+
+
+# 核心依赖（版本锁定解决冲突）
+numpy>=1.21.0,<1.25.0
+pandas>=1.4.0,<2.0.0
+scipy>=1.7.0,<1.10.0
+
+# 数据获取
+ccxt>=4.0.0
+websockets>=12.0.0
+httpx>=0.25.0
+
+# 配置
+pyyaml>=6.0.0
+
+# 可选：Polymarket 交易
+# py-clob-client  # 需要单独安装
+
+# 可选：数据存储
+pyarrow>=10.0.0

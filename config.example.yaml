@@ -1,0 +1,67 @@
+# Solana 微观结构反转 + Polymarket 交易系统配置
+
+# 交易所配置
+exchange:
+  api_key: ""  # Binance API Key（可选，公开数据不需要）
+  api_secret: ""
+  symbol: "SOL/USDT"
+  ws_url: "wss://stream.binance.com:9443/ws"
+  trade_buffer_size: 10000  # 逐笔成交缓冲区大小
+  orderbook_depth: 20
+
+# 策略参数
+strategy:
+  # 价格冲击检测
+  impact_threshold_pct: 0.3       # 价格变动阈值（%）
+  impact_window_ms: 5000          # 统计窗口（毫秒）
+  impact_volume_ratio: 2.0        # 成交量相对均值的倍数
+  
+  # Spread 监测
+  spread_percentile_threshold: 85.0  # 冲击阈值（spread 超过历史 85% 分位）
+  spread_lookback: 500            # 历史窗口大小
+  
+  # 订单流分析
+  imbalance_threshold: 0.6        # 不平衡阈值（0-1）
+  imbalance_window: 100           # 统计窗口（笔数）
+  
+  # 做市商补单观察
+  refill_window_ms: 30000         # 观察窗口（毫秒）
+  spread_recovery_threshold: 50.0 # 恢复阈值（spread 回落到 50% 分位以下）
+  price_hold_tolerance_pct: 0.15  # 价格容忍度（%）
+  
+  # 信号
+  min_confidence: 0.5             # 最低置信度
+  hold_time_ms: 60000             # 持仓时间（毫秒）
+
+# Polymarket 配置
+pm:
+  gamma_api_url: "https://gamma-api.polymarket.com"
+  clob_api_url: "https://clob.polymarket.com"
+  private_key_env: "POLYMARKET_PRIVATE_KEY"  # 环境变量名
+  
+  # 市场偏好
+  preferred_durations:
+    - "15min"
+    - "1h"
+  keywords:
+    - "solana"
+    - "sol up"
+    - "sol down"
+  
+  # 交易设置
+  entry_price_max: 0.15           # 最高入场价（劣势方）
+  take_profit_mult: 3.0           # 止盈倍数
+
+# Bot 配置
+bot:
+  dry_run: true                   # 模拟运行（不真实下单）
+  poll_interval_ms: 1000          # 主循环间隔
+  max_position_size: 100.0        # 最大持仓金额
+  
+  # 风控
+  max_daily_loss: 50.0            # 最大日亏损
+  max_drawdown_pct: 10.0          # 最大回撤
+  
+  # 性能
+  log_level: "INFO"
+  enable_profiling: false

@@ -1,0 +1,35 @@
+# Environment
+.venv/
+venv/
+*.pyc
+__pycache__/
+*.egg-info/
+
+# Data (large files, cached locally)
+data/
+*.parquet
+*.csv
+.lake_cache/
+
+# Secrets
+config.yaml
+.env
+credentials*.json
+!config.example.yaml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Models (binary)
+*.pkl
+*.joblib
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+Thumbs.db
