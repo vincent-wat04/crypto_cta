@@ -49,6 +49,8 @@ from cta.fvg.features_v3 import (
     get_v3_feature_columns,
 )
 from backtest.metrics import compute_backtest_metrics
+from backtest.labeling import validate_labels
+from backtest.dynamic_exit import atr_exit_params, simulate_exit
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -65,12 +67,22 @@ except ImportError:
 # Model: V3 uses GBM with auto feature selection
 # ─────────────────────────────────────────────────────────
 
-def train_v3_model(feature_df, target_col, feature_cols):
-    """Train GBM classifier with time series split."""
+def train_v3_model(feature_df, target_col, feature_cols, log_dir=None):
+    """
+    Train GBM classifier with:
+      - 降低的模型复杂度（防过拟合）
+      - Train/Validation 时序分割
+      - Early stopping（通过 n_iter_no_change）
+      - 概率校准（CalibratedClassifierCV）
+      - 训练日志保存
+    """
     from sklearn.ensemble import GradientBoostingClassifier
     from sklearn.preprocessing import StandardScaler
-    from sklearn.model_selection import TimeSeriesSplit, cross_val_score
-    from sklearn.metrics import classification_report
+    from sklearn.model_selection import TimeSeriesSplit
+    from sklearn.metrics import (
+        classification_report, log_loss, roc_auc_score, brier_score_loss,
+    )
+    from sklearn.calibration import CalibratedClassifierCV
 
     X = feature_df[feature_cols].fillna(0).values
     y = feature_df[target_col].values.astype(int)
@@ -86,48 +98,192 @@ def train_v3_model(feature_df, target_col, feature_cols):
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
+    # ── Train / Validation split (时序，最后 20% 作 val) ──
+    val_size = max(int(len(X) * 0.2), 10)
+    X_train, X_val = X_scaled[:-val_size], X_scaled[-val_size:]
+    y_train, y_val = y[:-val_size], y[-val_size:]
+    logger.info(f"  Train: {len(X_train)}, Validation: {len(X_val)}")
+
+    # ── 降低模型复杂度 + early stopping ──
     model = GradientBoostingClassifier(
-        n_estimators=200,
-        max_depth=5,
-        learning_rate=0.1,
-        subsample=0.8,
+        n_estimators=300,           # 上限，配合 early stopping
+        max_depth=3,                # 降低 (was 5)
+        learning_rate=0.05,         # 降低 (was 0.1)
+        subsample=0.7,              # 降低 (was 0.8)
+        min_samples_leaf=20,        # 新增：防过拟合
+        min_samples_split=30,       # 新增
+        max_features="sqrt",        # 新增：随机特征子集
+        n_iter_no_change=15,        # Early stopping: 15 轮无改善则停止
+        validation_fraction=0.15,   # 用于 early stopping 的验证集比例
+        tol=1e-4,
         random_state=42,
     )
 
-    # CV
-    n_splits = min(5, len(X) // 20)
+    # ── CV (时序) ──
+    n_splits = min(5, len(X_train) // 20)
+    cv_scores = {"accuracy": [], "log_loss": []}
     if n_splits >= 2:
         tscv = TimeSeriesSplit(n_splits=n_splits)
-        scores = cross_val_score(model, X_scaled, y, cv=tscv, scoring="accuracy")
-        cv_acc = scores.mean()
-        logger.info(f"  CV Accuracy: {cv_acc:.4f} (+/- {scores.std():.4f})")
+        for fold_i, (tr_idx, te_idx) in enumerate(tscv.split(X_train)):
+            fold_model = GradientBoostingClassifier(
+                n_estimators=300, max_depth=3, learning_rate=0.05,
+                subsample=0.7, min_samples_leaf=20, min_samples_split=30,
+                max_features="sqrt", n_iter_no_change=15,
+                validation_fraction=0.15, tol=1e-4, random_state=42,
+            )
+            fold_model.fit(X_train[tr_idx], y_train[tr_idx])
+            fold_pred = fold_model.predict(X_train[te_idx])
+            fold_proba = fold_model.predict_proba(X_train[te_idx])
+            acc = (fold_pred == y_train[te_idx]).mean()
+            cv_scores["accuracy"].append(acc)
+            try:
+                ll = log_loss(y_train[te_idx], fold_proba)
+                cv_scores["log_loss"].append(ll)
+            except Exception:
+                pass
+
+        cv_acc = np.mean(cv_scores["accuracy"])
+        cv_std = np.std(cv_scores["accuracy"])
+        logger.info(f"  CV Accuracy: {cv_acc:.4f} (+/- {cv_std:.4f})")
+        if cv_scores["log_loss"]:
+            logger.info(f"  CV Log-loss: {np.mean(cv_scores['log_loss']):.4f}")
     else:
         cv_acc = 0
+        cv_std = 0
 
-    model.fit(X_scaled, y)
-    preds = model.predict(X_scaled)
-    proba = model.predict_proba(X_scaled)
+    # ── Fit on full train set ──
+    model.fit(X_train, y_train)
+    actual_n_estimators = model.n_estimators_
+    logger.info(f"  Stopped at {actual_n_estimators} trees (max 300)")
 
-    report = classification_report(y, preds, output_dict=True)
-    logger.info(f"  Train Accuracy: {report['accuracy']:.4f}")
+    # ── Validation set evaluation ──
+    val_preds = model.predict(X_val)
+    val_proba = model.predict_proba(X_val)
+    val_acc = (val_preds == y_val).mean()
+    train_preds = model.predict(X_train)
+    train_acc = (train_preds == y_train).mean()
 
-    # Feature importance
+    logger.info(f"  Train Accuracy: {train_acc:.4f}")
+    logger.info(f"  Val Accuracy:   {val_acc:.4f}")
+    logger.info(f"  Overfit gap:    {train_acc - val_acc:.4f}")
+
+    # ── 概率校准（在 validation set 上）──
+    try:
+        cal_model = CalibratedClassifierCV(model, cv="prefit", method="isotonic")
+        cal_model.fit(X_val, y_val)
+        use_calibrated = True
+        logger.info("  Probability calibration: isotonic (on val set)")
+    except Exception:
+        cal_model = model
+        use_calibrated = False
+        logger.info("  Probability calibration: skipped")
+
+    # ── 全量预测（用于回测）──
+    if use_calibrated:
+        all_preds = cal_model.predict(X_scaled)
+        all_proba = cal_model.predict_proba(X_scaled)
+    else:
+        all_preds = model.predict(X_scaled)
+        all_proba = model.predict_proba(X_scaled)
+
+    train_report = classification_report(y, all_preds, output_dict=True)
+
+    # ── Validation metrics ──
+    val_metrics = {"val_accuracy": round(val_acc, 4)}
+    try:
+        val_proba_cal = cal_model.predict_proba(X_val) if use_calibrated else val_proba
+        if val_proba_cal.shape[1] == 2:
+            val_metrics["val_roc_auc"] = round(
+                roc_auc_score(y_val, val_proba_cal[:, 1]), 4
+            )
+            val_metrics["val_brier"] = round(
+                brier_score_loss(y_val, val_proba_cal[:, 1]), 4
+            )
+        val_metrics["val_log_loss"] = round(log_loss(y_val, val_proba_cal), 4)
+    except Exception:
+        pass
+
+    logger.info(f"  Val metrics: {val_metrics}")
+
+    # ── Feature importance ──
     importances = model.feature_importances_
-    top_feats = sorted(zip(valid_feature_names, importances), key=lambda x: x[1], reverse=True)[:20]
+    feat_imp = sorted(
+        zip(valid_feature_names, importances),
+        key=lambda x: x[1], reverse=True,
+    )[:30]
     logger.info("  Top features:")
-    for name, imp in top_feats[:10]:
+    for name, imp in feat_imp[:10]:
         logger.info(f"    {name}: {imp:.4f}")
 
+    # Regime feature importance ratio
+    regime_imp = sum(
+        imp for name, imp in zip(valid_feature_names, importances)
+        if name.startswith("regime_")
+    )
+    total_imp = sum(importances)
+    regime_ratio = regime_imp / (total_imp + 1e-10)
+    logger.info(f"  Regime features importance: {regime_ratio:.2%}")
+
+    # ── Save training log ──
+    training_log = {
+        "n_samples": len(X),
+        "n_features_input": len(feature_cols),
+        "n_features_valid": len(valid_cols),
+        "target_col": target_col,
+        "label_distribution": {
+            str(k): int(v)
+            for k, v in pd.Series(y).value_counts().items()
+        },
+        "model_params": {
+            "n_estimators_max": 300,
+            "n_estimators_actual": actual_n_estimators,
+            "max_depth": 3,
+            "learning_rate": 0.05,
+            "subsample": 0.7,
+            "min_samples_leaf": 20,
+        },
+        "train_accuracy": round(train_acc, 4),
+        "val_accuracy": round(val_acc, 4),
+        "cv_accuracy": round(cv_acc, 4),
+        "cv_std": round(cv_std, 4),
+        "overfit_gap": round(train_acc - val_acc, 4),
+        "calibrated": use_calibrated,
+        "val_metrics": val_metrics,
+        "regime_importance_ratio": round(regime_ratio, 4),
+        "top_features": [(n, round(float(v), 6)) for n, v in feat_imp[:20]],
+        "proba_stats": {
+            "mean": round(float(all_proba.max(axis=1).mean()), 4),
+            "std": round(float(all_proba.max(axis=1).std()), 4),
+            "min": round(float(all_proba.max(axis=1).min()), 4),
+            "max": round(float(all_proba.max(axis=1).max()), 4),
+        },
+    }
+
+    if log_dir is not None:
+        log_dir = Path(log_dir)
+        log_dir.mkdir(parents=True, exist_ok=True)
+        ts_str = pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")
+        log_file = log_dir / f"train_{ts_str}.json"
+        with open(log_file, "w", encoding="utf-8") as f:
+            json.dump(training_log, f, indent=2, default=str)
+        logger.info(f"  Training log saved: {log_file}")
+
     return {
-        "model": model,
+        "model": cal_model if use_calibrated else model,
+        "raw_model": model,
         "scaler": scaler,
         "valid_cols": valid_cols,
         "valid_feature_names": valid_feature_names,
         "cv_accuracy": cv_acc,
-        "train_report": report,
-        "top_features": top_feats,
-        "predictions": preds,
-        "probabilities": proba,
+        "train_accuracy": train_acc,
+        "val_accuracy": val_acc,
+        "train_report": train_report,
+        "top_features": feat_imp,
+        "predictions": all_preds,
+        "probabilities": all_proba,
+        "regime_importance_ratio": regime_ratio,
+        "val_metrics": val_metrics,
+        "training_log": training_log,
     }
 
 
@@ -137,11 +293,17 @@ def train_v3_model(feature_df, target_col, feature_cols):
 
 def backtest_fvg_v3(
     feature_df, ohlcv, predictions, probabilities,
-    min_proba=0.6, hold_bars=10,
+    min_proba=0.6, hold_bars=20,
     stop_loss_pct=0.3, take_profit_pct=0.5,
-    cooldown_bars=3,
+    cooldown_bars=5,
+    dynamic_exit=True,
 ):
-    """Backtest FVG V3 predictions."""
+    """
+    Backtest FVG V3 predictions.
+
+    Args:
+        dynamic_exit: 使用 ATR 动态止损止盈（只用历史数据，无未来信息泄漏）
+    """
     df = feature_df.copy()
     df["pred"] = predictions
     df["proba"] = probabilities[:, 1] if probabilities.shape[1] > 1 else probabilities[:, 0]
@@ -150,15 +312,17 @@ def backtest_fvg_v3(
     if signals.empty:
         return {"metrics": compute_backtest_metrics(pd.DataFrame()), "results_df": pd.DataFrame()}
 
-    arr_close = ohlcv["close"].values
-    arr_high = ohlcv["high"].values
-    arr_low = ohlcv["low"].values
-
     results = []
     last_exit = -cooldown_bars
 
     for _, row in signals.iterrows():
         ts = pd.to_datetime(row["timestamp"])
+        # 统一时区
+        if ohlcv.index.tz is None and getattr(ts, "tzinfo", None) is not None:
+            ts = ts.tz_localize(None)
+        elif ohlcv.index.tz is not None and getattr(ts, "tzinfo", None) is None:
+            ts = ts.tz_localize(ohlcv.index.tz)
+
         if ts not in ohlcv.index:
             continue
 
@@ -166,55 +330,40 @@ def backtest_fvg_v3(
         if entry_i - last_exit < cooldown_bars:
             continue
 
-        entry_price = arr_close[entry_i]
-        # Direction: pred=1 and fvg_type=bullish -> long after FVG
+        entry_price = float(ohlcv.iloc[entry_i]["close"])
         fvg_dir = int(row["fvg_type"])
-        if row["pred"] == 1:
-            direction = fvg_dir    # Follow FVG direction
+        direction = fvg_dir if row["pred"] == 1 else -fvg_dir
+
+        # Dynamic exit: ATR-based SL/TP (只用 entry_i 及之前的数据)
+        if dynamic_exit:
+            ep = atr_exit_params(
+                ohlcv, entry_i, direction,
+                atr_period=14, sl_atr_mult=2.0, tp_atr_mult=3.0,
+                max_hold_bars=hold_bars,
+            )
         else:
-            direction = -fvg_dir   # Fade FVG
+            from backtest.dynamic_exit import ExitParams
+            ep = ExitParams(
+                stop_loss_pct=stop_loss_pct,
+                take_profit_pct=take_profit_pct,
+                max_hold_bars=hold_bars,
+            )
 
-        exit_price = None
-        exit_reason = "hold"
-        end_i = min(entry_i + hold_bars, len(ohlcv) - 1)
-
-        for j in range(entry_i + 1, end_i + 1):
-            if direction == 1:
-                if (arr_low[j] - entry_price) / entry_price * 100 <= -stop_loss_pct:
-                    exit_price = entry_price * (1 - stop_loss_pct / 100)
-                    exit_reason = "stop_loss"
-                    end_i = j
-                    break
-                if (arr_high[j] - entry_price) / entry_price * 100 >= take_profit_pct:
-                    exit_price = entry_price * (1 + take_profit_pct / 100)
-                    exit_reason = "take_profit"
-                    end_i = j
-                    break
-            else:
-                if (arr_high[j] - entry_price) / entry_price * 100 >= stop_loss_pct:
-                    exit_price = entry_price * (1 + stop_loss_pct / 100)
-                    exit_reason = "stop_loss"
-                    end_i = j
-                    break
-                if (entry_price - arr_low[j]) / entry_price * 100 >= take_profit_pct:
-                    exit_price = entry_price * (1 - take_profit_pct / 100)
-                    exit_reason = "take_profit"
-                    end_i = j
-                    break
-
-        if exit_price is None:
-            exit_price = arr_close[end_i]
-
-        last_exit = end_i
-        ret = (exit_price - entry_price) / entry_price * 100 * direction
+        exit_result = simulate_exit(ohlcv, entry_i, direction, ep)
+        last_exit = exit_result["exit_idx"]
 
         results.append({
             "entry_time": ts, "direction": direction,
-            "entry_price": entry_price, "exit_price": exit_price,
-            "return_pct": ret, "is_win": ret > 0,
-            "exit_reason": exit_reason,
+            "entry_price": entry_price,
+            "exit_price": exit_result["exit_price"],
+            "return_pct": exit_result["return_pct"],
+            "is_win": exit_result["return_pct"] > 0,
+            "exit_reason": exit_result["exit_reason"],
+            "hold_bars": exit_result["hold_bars"],
             "fvg_type": row["fvg_type"],
             "pred_proba": row["proba"],
+            "sl_pct": ep.stop_loss_pct,
+            "tp_pct": ep.take_profit_pct,
         })
 
     rdf = pd.DataFrame(results) if results else pd.DataFrame()
@@ -277,8 +426,8 @@ def main():
     parser.add_argument("--end-date", type=str, default=None, help="Explicit end date YYYY-MM-DD")
     parser.add_argument("--freq", default="1min", help="OHLCV resample frequency")
     parser.add_argument("--min-gap-pct", type=float, default=0.02, help="Min FVG gap %")
-    parser.add_argument("--tb-upper", type=float, default=0.5, help="Triple Barrier upper %")
-    parser.add_argument("--tb-lower", type=float, default=0.3, help="Triple Barrier lower %")
+    parser.add_argument("--tb-upper", type=float, default=0.5, help="Triple Barrier upper %% (对称)")
+    parser.add_argument("--tb-lower", type=float, default=0.5, help="Triple Barrier lower %% (默认与 upper 相同)")
     parser.add_argument("--tb-horizons", nargs="+", type=int, default=[10, 30, 60])
     parser.add_argument("--target-horizon", type=int, default=30, help="Which TB horizon to predict")
     parser.add_argument("--grid-search", action="store_true")
@@ -307,6 +456,7 @@ def main():
         start_date = end_date - timedelta(days=args.days)
 
     n_days = (end_date - start_date).days
+    sym_slug = args.symbol.replace("/", "_")
 
     # ── 1. Load data ──
     logger.info("═══ FVG V3 Strategy ═══")
@@ -379,8 +529,8 @@ def main():
     # ── 5. Labels ──
     logger.info("[5/7] Building labels...")
 
-    # Always compute Triple Barrier labels (even if not used as target,
-    # they're useful for analysis)
+    # Always compute Triple Barrier labels with improved implementation
+    # 使用 OHLCV high/low 判断屏障触及（更真实）
     feat_df = add_triple_barrier_labels(
         feat_df, ohlcv,
         horizons=args.tb_horizons,
@@ -389,6 +539,17 @@ def main():
     )
 
     tb_col = f"tb_label_{args.target_horizon}"
+
+    # 验证 Triple Barrier 标签质量
+    if tb_col in feat_df.columns:
+        from backtest.labeling import validate_labels
+        tb_labels = feat_df[tb_col]
+        val_result = validate_labels(tb_labels, ohlcv["close"])
+        logger.info(f"  TB Label validation: trend={val_result['expected_trend']}, "
+                     f"consistent={val_result['is_consistent']}")
+        if val_result["warnings"]:
+            for w in val_result["warnings"]:
+                logger.warning(f"  ⚠ {w}")
 
     # Derived columns (always created for downstream use)
     if tb_col in feat_df.columns:
@@ -444,17 +605,19 @@ def main():
     # ── 6. Train model ──
     logger.info("[6/7] Training model...")
     logger.info(f"  Target column: {train_target}")
-    trained = train_v3_model(feat_df, train_target, feature_cols)
+    log_dir = DataPaths.data / "training_logs" / "fvg_v3" / sym_slug
+    trained = train_v3_model(feat_df, train_target, feature_cols, log_dir=log_dir)
 
     # ── 7. Backtest ──
-    logger.info("[7/7] Backtesting...")
+    logger.info("[7/7] Backtesting (dynamic ATR exit)...")
     preds = trained["predictions"]
     probas = trained["probabilities"]
 
     bt = backtest_fvg_v3(
         feat_df, ohlcv, preds, probas,
-        min_proba=0.6, hold_bars=10,
-        stop_loss_pct=0.3, take_profit_pct=0.5,
+        min_proba=0.5, hold_bars=20,
+        cooldown_bars=5,
+        dynamic_exit=True,
     )
 
     metrics = bt["metrics"]
@@ -475,7 +638,6 @@ def main():
 
     # ── Save results ──
     # 按 币种 / 日期范围_目标 分目录，避免实验互相覆盖
-    sym_slug = args.symbol.replace("/", "_")
     run_id = f"{start_date}_{end_date}_{args.target}"
     results_dir = (
         DataPaths.data / "backtest_results" / "fvg_v3" / sym_slug / run_id
@@ -504,10 +666,27 @@ def main():
         "n_fvgs_bearish": n_bearish,
         "n_features": len(feature_cols),
         "has_orderbook": book is not None,
-        "cv_accuracy": trained["cv_accuracy"],
-        "train_accuracy": trained["train_report"]["accuracy"],
+        "model": {
+            "cv_accuracy": trained["cv_accuracy"],
+            "train_accuracy": trained.get("train_accuracy", 0),
+            "val_accuracy": trained.get("val_accuracy", 0),
+            "overfit_gap": round(
+                trained.get("train_accuracy", 0) - trained.get("val_accuracy", 0), 4
+            ),
+            "n_estimators_actual": trained["training_log"]["model_params"]["n_estimators_actual"],
+            "calibrated": trained["training_log"]["calibrated"],
+            "val_metrics": trained.get("val_metrics", {}),
+        },
+        "regime_importance_ratio": trained.get("regime_importance_ratio", 0),
+        "proba_stats": trained["training_log"]["proba_stats"],
         "backtest_metrics": metrics,
-        "top_features": [(n, float(v)) for n, v in trained["top_features"][:10]],
+        "backtest_config": {
+            "dynamic_exit": True,
+            "min_proba": 0.5,
+            "hold_bars": 20,
+            "cooldown_bars": 5,
+        },
+        "top_features": [(n, float(v)) for n, v in trained["top_features"][:15]],
     }
     if args.grid_search and grid_df is not None and not grid_df.empty:
         best_row = grid_df.iloc[0].to_dict()

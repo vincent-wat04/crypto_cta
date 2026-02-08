@@ -123,6 +123,11 @@ def build_fvg_features_v3(
     print("[FVG V3] Pre-computing indicators...")
     indicators = _precompute_indicators(trades, taker_orders, book)
 
+    # Regime indicators (from OHLCV)
+    print("[FVG V3] Pre-computing regime indicators...")
+    regime_inds = _precompute_regime_indicators(ohlcv)
+    indicators.update(regime_inds)
+
     # ── Build per-FVG features ──
     print(f"[FVG V3] Building features for {len(fvgs)} FVGs...")
     records = []
@@ -249,8 +254,44 @@ def _precompute_indicators(
     return inds
 
 
+def _precompute_regime_indicators(ohlcv: pd.DataFrame) -> Dict[str, pd.Series]:
+    """计算市场 regime 指标，加入特征矩阵。"""
+    from indicators.regime.volatility_regime import (
+        realized_volatility, parkinson_volatility, garch_like_vol,
+    )
+    from indicators.regime.trend_strength import (
+        adx_indicator, efficiency_ratio,
+    )
+
+    regime_inds: Dict[str, pd.Series] = {}
+
+    # 波动率 regime
+    regime_inds["regime_realized_vol"] = realized_volatility(ohlcv["close"], window=60)
+    regime_inds["regime_parkinson_vol"] = parkinson_volatility(ohlcv, window=60)
+    regime_inds["regime_garch_vol"] = garch_like_vol(ohlcv["close"])
+
+    # 趋势 regime
+    adx_df = adx_indicator(ohlcv, period=14)
+    regime_inds["regime_adx"] = adx_df["adx"]
+    regime_inds["regime_di_plus"] = adx_df["di_plus"]
+    regime_inds["regime_di_minus"] = adx_df["di_minus"]
+    regime_inds["regime_di_spread"] = adx_df["di_plus"] - adx_df["di_minus"]
+
+    regime_inds["regime_eff_ratio"] = efficiency_ratio(ohlcv["close"], window=20)
+
+    # EMA 趋势方向
+    ema20 = ohlcv["close"].ewm(span=20, adjust=False).mean()
+    ema60 = ohlcv["close"].ewm(span=60, adjust=False).mean()
+    regime_inds["regime_ema_slope"] = (ema20 - ema20.shift(5)) / (ema20.shift(5) + 1e-10) * 100
+    regime_inds["regime_ema_cross"] = (ema20 - ema60) / (ema60 + 1e-10) * 100
+
+    return regime_inds
+
+
 def _get_indicator_category(name: str) -> str:
     """Map indicator name to window category."""
+    if name.startswith("regime_"):
+        return "regime"
     if "impact" in name or "eff" in name:
         return "price_impact"
     if "spread" in name or "roll" in name:
@@ -333,16 +374,21 @@ def add_triple_barrier_labels(
     ohlcv: pd.DataFrame,
     horizons: Optional[List[int]] = None,
     upper_pct: float = 0.5,
-    lower_pct: float = 0.3,
+    lower_pct: float = 0.5,
 ) -> pd.DataFrame:
     """
     为 FVG 特征矩阵添加 Triple Barrier 标签。
+
+    改进：
+    - 使用对称的上下轨（与 de Prado 一致）
+    - 使用 OHLCV high/low 判断屏障触及
+    - 支持波动率自适应
 
     Args:
         feature_df: build_fvg_features_v3 的输出
         ohlcv: OHLCV 数据
         horizons: 时间窗口列表 (bars)
-        upper_pct / lower_pct: 上下轨百分比
+        upper_pct / lower_pct: 上下轨百分比（默认对称 0.5%）
     """
     from backtest.labeling import triple_barrier_labels
 
@@ -353,7 +399,11 @@ def add_triple_barrier_labels(
     result = feature_df.copy()
 
     for h in horizons:
-        tb = triple_barrier_labels(prices, upper_pct=upper_pct, lower_pct=lower_pct, max_bars=h)
+        tb = triple_barrier_labels(
+            prices, upper_pct=upper_pct, lower_pct=lower_pct,
+            max_bars=h,
+            use_high_low=True, ohlcv=ohlcv,
+        )
 
         col_label = f"tb_label_{h}"
         col_barrier = f"tb_barrier_{h}"

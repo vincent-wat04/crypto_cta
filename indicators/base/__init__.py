@@ -51,3 +51,11 @@ from .orderbook_lifecycle import (
     depth_resilience,
     level_thickness_profile,
 )
+from .trade_microstructure import (
+    avg_fill_size,
+    level_volume_profile,
+    trade_side_autocorrelation,
+    trade_intensity,
+    vwap_deviation,
+    compute_trade_microstructure,
+)
