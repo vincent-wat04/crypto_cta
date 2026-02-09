@@ -46,8 +46,6 @@ from .taker_flow import (
 )
 from .orderbook_lifecycle import (
     depth_change_rate,
-    refill_frequency,
-    cancel_rate,
     depth_resilience,
     level_thickness_profile,
 )
@@ -59,3 +57,6 @@ from .trade_microstructure import (
     vwap_deviation,
     compute_trade_microstructure,
 )
+from .returns_momentum import compute_returns
+from .bar_structure import compute_bar_structure
+from .tick_statistics import compute_tick_stats

@@ -1,20 +1,26 @@
 """
 Orderbook 生命周期指标（需要 orderbook snapshot 序列）。
 
-衡量挂单的「寿命」和「补充」行为：
-  - depth_change_rate: 各档位深度变化率
-  - refill_frequency: 某侧被消耗后的补充速度
-  - order_lifespan_proxy: 挂单存活时间的代理指标
-  - cancel_rate: 撤单率（深度减少的频率）
-  - depth_resilience: 深度冲击后的恢复速度
+保留的指标：
+  - depth_change_rate: 各侧深度变化率（增加了 std/momentum 保留时序信息）
+  - depth_resilience: 深度冲击后的恢复速度（仅使用历史数据，无未来泄漏）
+  - level_thickness_profile: 各档位厚度占比
+
+已移除的指标：
+  - refill_frequency: ❌ 虚假指标。top-N 聚合深度在 levels 被吃后会因
+    下层 levels 滑升而自动恢复，并非真正的做市商补单。
+    要准确衡量补单需要追踪同一价位的订单变化，snapshot 数据无法做到。
+  - cancel_rate: ❌ 无法区分撤单与被成交。当 taker 部分消耗 bid1 时，
+    mid 不变、depth 下降，与撤单表现完全一致。
+    没有 order-level 数据无法准确计算。
 
 机制：
-  高 refill → 做市商积极补单 → 强支撑
-  高 cancel → 挂单快速撤走 → 虚假流动性
+  高 depth_change_rate → 补单活跃 → 流动性充足
   高 resilience → 冲击后快速恢复 → 均值回归信号
 """
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 
@@ -32,88 +38,37 @@ def depth_change_rate(
     window: int = 10,
 ) -> pd.DataFrame:
     """
-    Bid/Ask 侧深度的滚动变化率。
+    Bid/Ask 侧深度的滚动变化率，保留时序结构信息。
 
-    change_rate = (depth_t - depth_{t-1}) / depth_{t-1}
-
-    正值 → 补单（流动性增加）
-    负值 → 被消耗或撤单（流动性减少）
+    输出：
+      - {side}_depth_change_rate:  pct_change 的滚动均值（方向信号）
+      - {side}_depth_change_std:   pct_change 的滚动标准差（波动性）
+      - {side}_depth_change_mom:   最近 1 步 vs 滚动均值的偏离（加速/减速）
+      - depth_change_asymmetry:    bid 变化率 - ask 变化率（方向不平衡）
     """
     bid_depth = _get_depth(book, "bid", levels)
     ask_depth = _get_depth(book, "ask", levels)
 
-    bid_change = bid_depth.pct_change().rolling(window, min_periods=2).mean()
-    ask_change = ask_depth.pct_change().rolling(window, min_periods=2).mean()
+    bid_pct = bid_depth.pct_change()
+    ask_pct = ask_depth.pct_change()
+
+    bid_mean = bid_pct.rolling(window, min_periods=2).mean()
+    ask_mean = ask_pct.rolling(window, min_periods=2).mean()
+    bid_std = bid_pct.rolling(window, min_periods=2).std()
+    ask_std = ask_pct.rolling(window, min_periods=2).std()
+
+    # momentum: 当前 pct_change 与滚动均值之差（正 = 加速补单/恶化）
+    bid_mom = bid_pct - bid_mean
+    ask_mom = ask_pct - ask_mean
 
     return pd.DataFrame({
-        "bid_depth_change_rate": bid_change,
-        "ask_depth_change_rate": ask_change,
-        "depth_change_asymmetry": bid_change - ask_change,
-    }, index=book.index)
-
-
-def refill_frequency(
-    book: pd.DataFrame,
-    levels: int = 5,
-    window: int = 20,
-    depletion_threshold: float = -0.3,
-) -> pd.DataFrame:
-    """
-    补充频率：深度下降 >30% 后，在后续 N 个 snapshot 内恢复的比例。
-
-    高频补充 → 做市商积极 → 价格有支撑
-    低频补充 → 做市商撤退 → 流动性真空
-
-    Args:
-        depletion_threshold: 深度变化 < 此值视为 "被消耗"
-    """
-    bid_depth = _get_depth(book, "bid", levels)
-    ask_depth = _get_depth(book, "ask", levels)
-
-    def _refill_rate(depth_series):
-        change = depth_series.pct_change()
-        is_depleted = change < depletion_threshold
-        # 看 depletion 后下一个 snapshot 是否恢复
-        next_change = change.shift(-1)
-        refills_after_depletion = (is_depleted & (next_change > 0)).astype(float)
-        return refills_after_depletion.rolling(window, min_periods=3).mean()
-
-    return pd.DataFrame({
-        "bid_refill_freq": _refill_rate(bid_depth),
-        "ask_refill_freq": _refill_rate(ask_depth),
-    }, index=book.index)
-
-
-def cancel_rate(
-    book: pd.DataFrame,
-    levels: int = 5,
-    window: int = 20,
-) -> pd.DataFrame:
-    """
-    撤单率：深度减少（非成交导致）的频率。
-
-    近似方法：depth 下降但 mid price 未变化 → 可能是撤单而非成交。
-    """
-    bid_depth = _get_depth(book, "bid", levels)
-    ask_depth = _get_depth(book, "ask", levels)
-
-    has_mid = "bid_0_price" in book.columns and "ask_0_price" in book.columns
-    if has_mid:
-        mid = (book["bid_0_price"].astype(float) + book["ask_0_price"].astype(float)) / 2
-        mid_unchanged = mid.diff().abs() < 1e-10
-    else:
-        mid_unchanged = pd.Series(True, index=book.index)
-
-    bid_dropped = bid_depth.diff() < 0
-    ask_dropped = ask_depth.diff() < 0
-
-    # 撤单 = 深度下降 + mid 不变
-    bid_cancel = (bid_dropped & mid_unchanged).astype(float)
-    ask_cancel = (ask_dropped & mid_unchanged).astype(float)
-
-    return pd.DataFrame({
-        "bid_cancel_rate": bid_cancel.rolling(window, min_periods=3).mean(),
-        "ask_cancel_rate": ask_cancel.rolling(window, min_periods=3).mean(),
+        "bid_depth_change_rate": bid_mean,
+        "ask_depth_change_rate": ask_mean,
+        "bid_depth_change_std": bid_std,
+        "ask_depth_change_std": ask_std,
+        "bid_depth_change_mom": bid_mom,
+        "ask_depth_change_mom": ask_mom,
+        "depth_change_asymmetry": bid_mean - ask_mean,
     }, index=book.index)
 
 
@@ -122,11 +77,18 @@ def depth_resilience(
     levels: int = 5,
     shock_window: int = 3,
     recovery_window: int = 10,
+    shock_threshold: float = -0.2,
 ) -> pd.DataFrame:
     """
     深度韧性：深度被冲击后的恢复速度。
 
-    resilience = (depth after recovery_window - depth at shock) / depth before shock
+    **仅使用历史数据**（无未来泄漏）。
+
+    算法：
+      1. 检测冲击：rolling(shock_window).min pct_change < shock_threshold
+      2. 冲击后在 recovery_window 内的恢复程度：
+         recovery = (current_depth - min_depth_in_window) / depth_before_shock
+      3. 滚动取 recovery 均值
 
     高韧性 → 做市商迅速补单 → 反转信号
     低韧性 → 单边吃穿 → 趋势继续
@@ -135,18 +97,27 @@ def depth_resilience(
     ask_depth = _get_depth(book, "ask", levels)
 
     def _resilience(depth):
-        before = depth.shift(shock_window)
-        at_shock = depth
-        after = depth.shift(-recovery_window)
+        # 过去 shock_window 内的最小深度变化
+        pct = depth.pct_change()
+        rolling_min_pct = pct.rolling(shock_window, min_periods=1).min()
 
-        shock_size = (at_shock - before) / (before + 1e-10)
-        recovery = (after - at_shock) / (before + 1e-10)
+        # 标记冲击发生
+        is_shock = rolling_min_pct < shock_threshold
 
-        # 只在冲击发生时有意义
-        is_shock = shock_size < -0.2
-        res = pd.Series(0, index=depth.index, dtype=float)
+        # 冲击前深度 = shock_window 前的值
+        depth_before = depth.shift(shock_window)
+
+        # 冲击时的最低深度 = 近 shock_window 内最低
+        depth_min = depth.rolling(shock_window, min_periods=1).min()
+
+        # 恢复 = 当前深度相对最低点的恢复占冲击前深度的比例
+        recovery = (depth - depth_min) / (depth_before.abs() + 1e-10)
+
+        # 仅在冲击后才有意义，用 rolling mean 平滑
+        res = pd.Series(np.nan, index=depth.index, dtype=float)
         res[is_shock] = recovery[is_shock]
-        return res
+        res = res.rolling(recovery_window, min_periods=1).mean()
+        return res.fillna(0)
 
     return pd.DataFrame({
         "bid_resilience": _resilience(bid_depth),

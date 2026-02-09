@@ -235,7 +235,7 @@ def _precompute_indicators(
     # Orderbook (if available)
     if book is not None and not book.empty:
         from indicators.base.orderbook_pressure import depth_imbalance, vwap_pressure
-        from indicators.base.orderbook_lifecycle import depth_change_rate, cancel_rate
+        from indicators.base.orderbook_lifecycle import depth_change_rate
 
         inds["ob_depth_imb"] = depth_imbalance(book, levels=5)
         vwap_df = vwap_pressure(book, levels=10)
@@ -246,10 +246,8 @@ def _precompute_indicators(
         if not dcr.empty:
             inds["ob_bid_change_rate"] = dcr["bid_depth_change_rate"]
             inds["ob_ask_change_rate"] = dcr["ask_depth_change_rate"]
-        cr = cancel_rate(book, levels=5, window=20)
-        if not cr.empty:
-            inds["ob_bid_cancel"] = cr["bid_cancel_rate"]
-            inds["ob_ask_cancel"] = cr["ask_cancel_rate"]
+            inds["ob_bid_change_std"] = dcr["bid_depth_change_std"]
+            inds["ob_ask_change_std"] = dcr["ask_depth_change_std"]
 
     return inds
 

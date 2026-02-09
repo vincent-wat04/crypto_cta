@@ -19,6 +19,7 @@ import pandas as pd
 
 from .base import price_impact, spread, order_flow, volume_profile
 from .base import taker_flow, orderbook_lifecycle, orderbook_pressure
+from .base import returns_momentum, bar_structure, tick_statistics
 
 REGISTRY: Dict[str, Dict[str, Any]] = {
     # ── Price Impact ──
@@ -216,22 +217,8 @@ REGISTRY: Dict[str, Dict[str, Any]] = {
         "description": "Bid/Ask 深度变化率",
         "default_params": {"levels": 5, "window": 10},
     },
-    "refill_frequency": {
-        "fn": orderbook_lifecycle.refill_frequency,
-        "category": "base",
-        "subcategory": "orderbook_lifecycle",
-        "input": "book",
-        "description": "深度补充频率",
-        "default_params": {"levels": 5, "window": 20, "depletion_threshold": -0.3},
-    },
-    "cancel_rate": {
-        "fn": orderbook_lifecycle.cancel_rate,
-        "category": "base",
-        "subcategory": "orderbook_lifecycle",
-        "input": "book",
-        "description": "撤单率",
-        "default_params": {"levels": 5, "window": 20},
-    },
+    # refill_frequency: REMOVED - 虚假指标（top-N 聚合深度在 levels 被吃后自动恢复）
+    # cancel_rate: REMOVED - 无法区分撤单与被成交
     "depth_resilience": {
         "fn": orderbook_lifecycle.depth_resilience,
         "category": "base",
@@ -272,6 +259,33 @@ REGISTRY: Dict[str, Dict[str, Any]] = {
         "input": "book",
         "description": "深度分布斜率",
         "default_params": {"levels": 10},
+    },
+    # ── Returns & Momentum (需要 OHLCV) ──
+    "returns_momentum": {
+        "fn": returns_momentum.compute_returns,
+        "category": "base",
+        "subcategory": "returns_momentum",
+        "input": "ohlcv",
+        "description": "收益率、动量、波动率、偏度、峰度、z-score",
+        "default_params": {"windows": [3, 5, 10, 20]},
+    },
+    # ── Bar Structure (需要 OHLCV) ──
+    "bar_structure": {
+        "fn": bar_structure.compute_bar_structure,
+        "category": "base",
+        "subcategory": "bar_structure",
+        "input": "ohlcv",
+        "description": "Bar 形态：振幅、实体比、影线、效率、成交密度",
+        "default_params": {"windows": [3, 5, 10, 20]},
+    },
+    # ── Tick Statistics (需要 trades) ──
+    "tick_statistics": {
+        "fn": tick_statistics.compute_tick_stats,
+        "category": "base",
+        "subcategory": "tick_statistics",
+        "input": "trades",
+        "description": "Tick-level 秒内统计：价位数、大单、VWAP偏差、size不对称",
+        "default_params": {"freq": "1s", "windows": [3, 5, 10, 20]},
     },
 }
 
