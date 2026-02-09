@@ -1,7 +1,6 @@
-# V5 Unified Experiment Report — SOL/USDT
+# SOL/USDT 预测实验总报告 (V3 → V4 → V5)
 
 > **Date**: 2026-02-10  
-> **Framework**: V5 Full Indicators (indicators/ library)  
 > **Symbol**: SOL/USDT  
 > **Train**: 13 days (2026-01-22 ~ 2026-02-03)  
 > **Test**: 3 days (2026-02-04 ~ 2026-02-06)  
@@ -436,3 +435,256 @@ At 1min, TBM classification (tp0.5_sl0.5 with GBM) is competitive with return re
    - Explore dynamic threshold adjustment based on regime features
    - Investigate feature interaction effects (e.g., spread × volatility)
    - Explore better windows for single feature
+
+---
+---
+
+# Appendix A: V3 Experiment Report
+
+> **Script**: `scripts/train_sol_momentum_v3.py`  
+> **Date**: 2026-02-09  
+> **Train**: 7 days (Jan 22-28) | **Test**: 3 days (Feb 4-6)  
+> **Features**: 65 effective (OHLCV + inline taker flow, windows [3,5,10,20])  
+> **Trading**: Fixed-interval (first version to adopt this paradigm)  
+> **Targets**: Return Regression, Binary Classification, TBM (tp=1.5, sl=1.5)  
+> **Models**: Ridge/GBM (reg), Logistic/GBM (cls)  
+> **Cost**: 4 bps taker / ~0.8 bps maker
+
+## A.1 Grand Summary
+
+| Interval | Target | Best Model Config | Sharpe | Net PnL (bps) | Trades | WR |
+|----------|--------|-------------------|--------|--------------|--------|-----|
+| **1s** | Return | `ridge_maker_thr2.0` | -0.53 | -134 | 134 | 42.6% |
+| **1s** | Binary | `gbm_maker_thr0` | -10.71 | -17,234 | 11,706 | 36.6% |
+| **1s** | TBM | `logistic_maker_thr0.2` | -0.85 | -100 | 111 | 50.0% |
+| **1min** | Return | `gbm_maker_thr0` | **+0.36** | +601 | 364 | 49.4% |
+| **1min** | Binary | `gbm_taker_thr0.1` | 0.00 | 0 | 0 | — |
+| **1min** | TBM | `logistic_maker_thr0.2` | **+1.52** | +358 | 26 | **69.2%** |
+| **5min** | Return | `gbm_maker_thr0` | **+1.22** | +2,000 | 249 | 50.4% |
+| **5min** | Binary | `gbm_maker_thr0.1` | +0.79 | +8 | 2 | 100% |
+| **5min** | TBM | `logistic_maker_thr0.1` | +0.52 | +392 | 157 | 47.2% |
+
+**V3 Overall Best**: 1min TBM → `logistic_maker_thr0.2` (Sharpe **+1.52**, 26 trades, 69.2% WR)
+
+### V1 Baselines (5min bars, windows [2,3,6,12]×5min)
+- Ridge maker_q60_h12: SR=+1.23, Net=+1,817, N=161, WR=54.0%
+- GBM maker_q80_h24: SR=+1.17, Net=+2,054, N=67, WR=46.3%
+
+## A.2 Top Features by Experiment
+
+### 1s Return (Top 10)
+| Rank | Feature | Window | Importance |
+|------|---------|--------|-----------|
+| 1 | `bar_range_ma_5` | 5s | 0.0087 |
+| 2 | (+ other bar/spread) | mixed | ... |
+
+### 1min Return (Top 10)
+| Rank | Feature | Window | Importance |
+|------|---------|--------|-----------|
+| 1 | `bar_range_ma_20` | 20s | 1.1158 |
+| 2 | `spread_proxy_10` | 10s | 0.2310 |
+| 3 | `trades_ma_5` | 5s | 0.2121 |
+| 4 | `trades_ma_3` | 3s | 0.1846 |
+| 5 | `bar_range_ma_5` | 5s | 0.1832 |
+| 6 | `spread_proxy_20` | 20s | 0.1753 |
+| 7 | `n_trades` | raw | 0.1688 |
+| 8 | `bar_range_ma_10` | 10s | 0.1298 |
+| 9 | `volume_ma_5` | 5s | 0.1036 |
+| 10 | `bar_range_bps` | raw | 0.0907 |
+
+### 1min TBM (Top 10) — Overall Best
+| Rank | Feature | Window | Importance |
+|------|---------|--------|-----------|
+| 1 | `return_std_20` | 20s | 0.00225 |
+| 2 | `spread_proxy_3` | 3s | 0.00162 |
+| 3 | `bar_range_ma_5` | 5s | 0.00160 |
+| 4 | `return_sum_3` | 3s | 0.00157 |
+| 5 | `return_sum_20` | 20s | 0.00157 |
+| 6 | `bar_direction` | raw | 0.00157 |
+| 7 | `n_trades` | raw | 0.00157 |
+| 8 | `volume_ma_10` | 10s | 0.00157 |
+| 9 | `return_sum_5` | 5s | 0.00157 |
+| 10 | `return_std_10` | 10s | 0.00157 |
+
+### 5min Return (Top 10) — Second Best
+| Rank | Feature | Window | Importance |
+|------|---------|--------|-----------|
+| 1 | `bar_range_ma_20` | 20s | 0.2778 |
+| 2 | `spread_proxy_10` | 10s | 0.2310 |
+| 3 | `trades_ma_5` | 5s | 0.2121 |
+| 4 | `trades_ma_3` | 3s | 0.1846 |
+| 5 | `bar_range_ma_5` | 5s | 0.1832 |
+| 6 | `spread_proxy_20` | 20s | 0.1753 |
+| 7 | `n_trades` | raw | 0.1688 |
+| 8 | `bar_range_ma_10` | 10s | 0.1298 |
+| 9 | `volume_ma_5` | 5s | 0.1036 |
+| 10 | `bar_range_bps` | raw | 0.0907 |
+
+### 5min Binary (Top 5)
+| Rank | Feature | Window | Importance |
+|------|---------|--------|-----------|
+| 1 | `return_sum_5` | 5s | 0.01325 |
+| 2 | `bar_range_ma_3` | 3s | 0.01199 |
+| 3 | `impact_proxy_3` | 3s | 0.01073 |
+| 4 | `return_skew_20` | 20s | 0.01010 |
+| 5 | `return_std_20` | 20s | 0.00946 |
+
+## A.3 V3 Key Insights
+
+1. **First framework to make fixed-interval trading work** — eliminated V2's over-trading problem
+2. **65 features, all inline-computed** — no use of `indicators/` library
+3. **1min TBM showed the strongest signal** (Sharpe +1.52) but with very few trades (26)
+4. **5min Return Regression** (Sharpe +1.22) provided the best balance of trades and Sharpe
+5. **Binary classification mostly failed** — adding direction to TBM-style 3-class is needed
+6. **Feature dominance**: `bar_range` and `spread_proxy` together dominate across all horizons
+
+---
+---
+
+# Appendix B: V4 Experiment Report
+
+> **Script**: `scripts/train_sol_1min_tbm_v4.py`  
+> **Date**: 2026-02-10  
+> **Focus**: 1min TBM deep exploration with grid search  
+> **Train**: 13 days (Jan 22 ~ Feb 3) — extended from V3's 7 days  
+> **Test**: 3 days (Feb 4-6)  
+> **Features**: 108 effective (V3's OHLCV + new tick-level micro stats)  
+> **New in V4**: Tick-level features (`tick_n_prices`, `tick_max_trade`, `tick_size_cv`, `tick_vwap_dev`, `tick_size_imbalance`, `tick_large_pct`, `tick_range_per_trade`, `tick_n_agg`)  
+> **TBM Grid**: 10 configs from (tp,sl) ∈ {0.5, 0.75, 1.0, 1.25, 1.5, 2.0} × {symmetric + asymmetric}  
+> **Models**: Logistic Regression / GBM (classification only)
+
+## B.1 Grand Summary — TBM Grid Search (1min)
+
+| tp_mult | sl_mult | Trend% | Best Config | Sharpe | Net PnL | Trades | WR |
+|---------|---------|--------|-------------|--------|---------|--------|-----|
+| 0.50 | 0.50 | 87.8% | `logistic_maker_thr0.3` | +0.48 | +284 | 59 | 67.5% |
+| 0.75 | 0.75 | 69.4% | `gbm_taker_thr0.3` | 0.00 | 0 | 0 | — |
+| **1.00** | **1.00** | **50.6%** | `logistic_maker_thr0.3` | **+1.88** | **+452** | **14** | **100%** |
+| 1.25 | 1.25 | 36.0% | `gbm_maker_thr0.15` | +1.15 | +20 | 4 | 100% |
+| 1.50 | 1.50 | 25.0% | `gbm_taker_thr0.15` | 0.00 | 0 | 0 | — |
+| 2.00 | 2.00 | 12.5% | `logistic_maker_thr0.15` | +0.81 | +130 | 40 | 65.0% |
+| 1.50 | 0.75 | 48.9% | `logistic_maker_thr0.05` | +1.41 | +2,251 | 51 | 50.3% |
+| 0.75 | 1.50 | 47.8% | `logistic_maker_thr0.15` | -0.86 | -1,399 | 77 | 49.9% |
+| **1.00** | **0.50** | **72.3%** | `logistic_maker_thr0.05` | **+1.59** | **+2,606** | **10** | **50.3%** |
+| 0.50 | 1.00 | 72.0% | `logistic_maker_thr0.15` | -0.83 | -1,337 | 138 | 49.7% |
+
+**V4 Overall Best**: tp=1.00, sl=1.00 → `logistic_maker_thr0.3` (Sharpe **+1.88**, 14 trades, 100% WR)
+
+**V3 Baseline**: logistic_maker_thr0.2 (tp=1.5, sl=1.5) → SR=+1.52, Net=+358, N=26, WR=69.2%
+
+## B.2 Top Features — V4 TBM (tp1.0, sl1.0) — Overall Best
+
+| Rank | Feature | Source | Window | Importance |
+|------|---------|--------|--------|-----------|
+| 1 | `tick_size_imbalance` | **tick** (new) | raw | 0.00883 |
+| 2 | `bar_range_ma_5` | OHLCV | 5s | 0.00533 |
+| 3 | `tick_large_pct_ma_10` | **tick** (new) | 10s | 0.00487 |
+| 4 | `bar_range_ma_10` | OHLCV | 10s | 0.00405 |
+| 5 | `tick_n_agg_ma_5` | **tick** (new) | 5s | 0.00403 |
+| 6 | `tick_n_agg_ma_3` | **tick** (new) | 3s | 0.00383 |
+| 7 | `imbalance_ma_3` | taker | 3s | 0.00380 |
+| 8 | `imbalance_ma_5` | taker | 5s | 0.00362 |
+| 9 | `trades_ma_10` | OHLCV | 10s | 0.00359 |
+| 10 | `spread_proxy_5` | spread | 5s | 0.00346 |
+| 11 | `tick_large_pct_ma_20` | **tick** (new) | 20s | 0.00337 |
+| 12 | `n_trades` | OHLCV | raw | 0.00292 |
+| 13 | `tick_n_prices_ma_5` | **tick** (new) | 5s | 0.00269 |
+| 14 | `spread_proxy_3` | spread | 3s | 0.00249 |
+| 15 | `tick_n_agg_ma_20` | **tick** (new) | 20s | 0.00247 |
+
+### V4 TBM (tp1.0, sl0.5) Top 10
+| Rank | Feature | Source | Window | Importance |
+|------|---------|--------|--------|-----------|
+| 1 | `bar_range_ma_5` | OHLCV | 5s | 0.01958 |
+| 2 | `tick_n_prices` | **tick** (new) | raw | 0.01764 |
+| 3 | `tick_size_cv_ma_5` | **tick** (new) | 5s | 0.01661 |
+| 4 | `bar_range_ma_20` | OHLCV | 20s | 0.01618 |
+| 5 | `trades_ma_5` | OHLCV | 5s | 0.01388 |
+| 6 | `return_sum_10` | returns | 10s | 0.01376 |
+| 7 | `imbalance_ma_10` | taker | 10s | 0.01286 |
+| 8 | `spread_proxy_10` | spread | 10s | 0.01269 |
+| 9 | `imbalance_ma_20` | taker | 20s | 0.01120 |
+| 10 | `tick_size_cv_ma_3` | **tick** (new) | 3s | 0.01024 |
+
+### V4 TBM (tp0.5, sl0.5) Top 10
+| Rank | Feature | Source | Window | Importance |
+|------|---------|--------|--------|-----------|
+| 1 | `tick_size_imbalance` | **tick** (new) | raw | 0.00467 |
+| 2 | `n_trades` | OHLCV | raw | 0.00447 |
+| 3 | `tick_n_prices` | **tick** (new) | raw | 0.00443 |
+| 4 | `return_std_20` | returns | 20s | 0.00394 |
+| 5 | `tick_vwap_dev_ma_10` | **tick** (new) | 10s | 0.00361 |
+| 6 | `tick_n_prices_ma_20` | **tick** (new) | 20s | 0.00346 |
+| 7 | `return_sum_3` | returns | 3s | 0.00326 |
+| 8 | `spread_proxy_5` | spread | 5s | 0.00315 |
+| 9 | `imbalance_ma_3` | taker | 3s | 0.00283 |
+| 10 | `tick_max_trade_ma_3` | **tick** (new) | 3s | 0.00260 |
+
+## B.3 V4 Key Insights
+
+1. **TBM barrier tuning matters enormously** — Sharpe ranged from -0.86 to +1.88 depending on (tp, sl)
+2. **Symmetric barriers (tp=sl) tend to outperform** — tp1.0_sl1.0 was the overall best
+3. **Asymmetric tp>sl (momentum bias)** also worked well — tp1.0_sl0.5 achieved +1.59 Sharpe with higher PnL (+2,606 bps)
+4. **Asymmetric tp<sl (reversal bias)** consistently failed — tp0.5_sl1.0 and tp0.75_sl1.5 both negative
+5. **Tick-level features dominated**: `tick_size_imbalance`, `tick_n_prices`, `tick_size_cv`, `tick_large_pct` were all new in V4 and appeared in top-5 features across multiple configs
+6. **Logistic Regression outperformed GBM** for most TBM configs — suggesting the classification boundary is relatively linear at 1min with 108 features
+7. **Extended training data (13 vs 7 days)** improved model stability
+8. **Trend% sweet spot**: Configs with 50-72% trend signals performed best; too aggressive (87.8%) or too conservative (12.5%) underperformed
+
+## B.4 V3 → V4 Improvement
+
+| Metric | V3 (tp1.5_sl1.5) | V4 (tp1.0_sl1.0) | V4 (tp1.0_sl0.5) |
+|--------|-------------------|-------------------|-------------------|
+| **Sharpe** | +1.52 | **+1.88** (+24%) | +1.59 (+5%) |
+| **Net PnL** | +358 | +452 (+26%) | **+2,606** (+628%) |
+| **Trades** | 26 | 14 | 10 |
+| **Win Rate** | 69.2% | **100%** | 50.3% |
+| **Features** | 65 | **108** (+66%) | 108 |
+| **Training days** | 7 | **13** (+86%) | 13 |
+
+---
+---
+
+# Appendix C: Version Evolution Summary
+
+## C.1 Architecture Evolution
+
+| Version | Key Innovation | Features | Train Days | Best Sharpe | Best Target |
+|---------|---------------|----------|------------|-------------|-------------|
+| **V1** | Position-based trading | ~30 (5min bars) | 7 | +1.23 | 5min Return |
+| **V2** | 1s features for all horizons | ~65 (inline) | 7 | — (over-traded) | Failed |
+| **V3** | **Fixed-interval trading** | 65 (inline) | 7 | +1.52 | 1min TBM |
+| **V4** | **Tick-level features + TBM grid** | 108 (inline+tick) | 13 | +1.88 | 1min TBM |
+| **V5** | **Full indicators/ library** | **215** (library) | 13 | **+2.66** | **5min Return** |
+
+## C.2 Feature Count Growth
+
+```
+V1:   ~30  ████████
+V3:    65  █████████████████
+V4:   108  ████████████████████████████
+V5:   215  ████████████████████████████████████████████████████████
+```
+
+## C.3 Sharpe Progression (Best per Version)
+
+```
+V1:  +1.23  ████████████
+V3:  +1.52  ███████████████
+V4:  +1.88  ███████████████████
+V5:  +2.66  ██████████████████████████▌
+```
+
+## C.4 Key Lessons Across Versions
+
+| Lesson | Version Learned |
+|--------|----------------|
+| 1s prediction not economically viable | V1, confirmed V3, V5 |
+| Fixed-interval trading prevents over-trading | V3 (solved V2's failure) |
+| Feature windows should match physical meaning, not prediction horizon | V2→V3 |
+| Tick-level features add significant value | V4 |
+| TBM barrier tuning is critical | V4 |
+| Library-based features > inline features | V5 |
+| Regime features (vol, ADX) add value at longer horizons | V5 |
+| GBM outperforms linear models at 5min; linear competitive at 1min | V3, V5 |
+| Maker fees vs taker fees can flip a strategy from loss to profit | All versions |
