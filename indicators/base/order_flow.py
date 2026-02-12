@@ -49,25 +49,54 @@ def vpin(
     trades: pd.DataFrame,
     bucket_volume: float = 1000,
     n_buckets: int = 50,
+    sigma_window: int = 200,
 ) -> pd.Series:
     """
     VPIN: Volume-Synchronized Probability of Informed Trading.
-    将成交量分桶，计算每桶内买卖不平衡的滚动均值。
-    """
-    ts = trades.copy().sort_values("timestamp").reset_index(drop=True)
-    sign = ts["side"].map({"buy": 1, "sell": -1}).fillna(0)
-    ts["signed_vol"] = sign * ts["amount"]
 
+    标准 Bulk Volume Classification (BVC) 方法 (Easley, Lopez de Prado, O'Hara):
+
+        V_τ^B = Σ V_i · Z( (P_i - P_{i-1}) / σ_{ΔP} )
+        V_τ^S = Σ V_i · [1 - Z( (P_i - P_{i-1}) / σ_{ΔP} )] = V_τ - V_τ^B
+
+    其中 Z 为标准正态 CDF。通过价格变动的标准化概率来分配每笔成交量
+    到买方/卖方，而非依赖 trade side 字段。
+
+    VPIN = rolling_mean( |V_τ^B - V_τ^S| / V_τ )
+
+    Args:
+        trades: 含 timestamp, price, amount 列的 DataFrame
+        bucket_volume: 每桶的目标成交量
+        n_buckets: VPIN 滚动窗口中的桶数
+        sigma_window: 计算价格变动标准差的滚动窗口（逐笔）
+    """
+    from scipy.stats import norm
+
+    ts = trades.copy().sort_values("timestamp").reset_index(drop=True)
+
+    # ── Step 1: BVC — 用标准正态 CDF 概率分配买卖量 ──
+    dp = ts["price"].diff().fillna(0)
+    sigma_dp = dp.rolling(sigma_window, min_periods=20).std().fillna(dp.expanding().std())
+    sigma_dp = sigma_dp.replace(0, np.nan).ffill().fillna(1e-10)
+
+    z_score = dp / sigma_dp
+    buy_prob = norm.cdf(z_score)  # Z((P_i - P_{i-1}) / σ_{ΔP})
+
+    ts["buy_vol"] = ts["amount"] * buy_prob       # V_i · Z(·)
+    ts["sell_vol"] = ts["amount"] * (1 - buy_prob)  # V_i · [1 - Z(·)]
+
+    # ── Step 2: 等量分桶 ──
     cum_vol = ts["amount"].cumsum()
     ts["bucket"] = (cum_vol / bucket_volume).astype(int)
 
     bucket_stats = ts.groupby("bucket").agg(
-        buy_vol=("signed_vol", lambda x: x[x > 0].sum()),
-        sell_vol=("signed_vol", lambda x: abs(x[x < 0].sum())),
+        buy_vol=("buy_vol", "sum"),
+        sell_vol=("sell_vol", "sum"),
         total_vol=("amount", "sum"),
         last_ts=("timestamp", "last"),
     )
 
+    # ── Step 3: 计算 VPIN ──
     bucket_stats["imbalance"] = (
         (bucket_stats["buy_vol"] - bucket_stats["sell_vol"]).abs()
         / (bucket_stats["total_vol"] + 1e-10)
