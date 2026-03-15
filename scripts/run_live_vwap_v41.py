@@ -40,6 +40,7 @@ sys.path.insert(0, str(ROOT))
 from trading.config import RuleRunnerConfig
 from trading.realtime_bar_builder import RealtimeBarBuilder
 from trading.cost_model import CostModel
+from trading.telegram_notifier import TelegramNotifier
 
 logging.basicConfig(
     level=logging.INFO,
@@ -163,6 +164,9 @@ class VwapV41Runner:
         self._running = False
         self._account_free: float = 0.0
 
+        # Telegram notifier (optional — None means notifications disabled)
+        self._tg: Optional[TelegramNotifier] = TelegramNotifier.from_env_optional()
+
     # ─── Live init ───
 
     def _init_live(self) -> None:
@@ -225,6 +229,14 @@ class VwapV41Runner:
         symbol_ws = self.config.symbol.replace("/", "").lower()
         ws_url = f"{self.config.ws_url}/{symbol_ws}@aggTrade"
 
+        cfg_summary = (
+            f"symbol={self.config.symbol}  mode={self.config.mode}\n"
+            f"tpb={self.config.trades_per_bar}  warmup={self.config.warmup_bars}\n"
+            f"fw1={self.config.v41_fw1} ema1={self.config.v41_ema_w1} "
+            f"fw2={self.config.v41_fw2} ema2={self.config.v41_ema_w2}\n"
+            f"leverage={self.config.leverage}  "
+            f"pos_usd={self.config.position_size_usd or f'{self.config.max_position_pct:.0%} equity'}"
+        )
         logger.info("Starting VwapV41Runner [%s mode]", self.config.mode)
         logger.info("WS: %s | tpb=%d | warmup=%d bars",
                     ws_url, self.config.trades_per_bar, self.config.warmup_bars)
@@ -232,7 +244,11 @@ class VwapV41Runner:
                     self.config.v41_fw1, self.config.v41_ema_w1,
                     self.config.v41_fw2, self.config.v41_ema_w2)
 
+        if self._tg:
+            await self._tg.send_startup(cfg_summary)
+
         self._running = True
+        self._warmup_notified = False
 
         while self._running:
             try:
@@ -249,6 +265,8 @@ class VwapV41Runner:
                         self._process_message(msg)
             except Exception as e:
                 logger.error("WebSocket error: %s — reconnecting in 5s", e)
+                if self._tg:
+                    await self._tg.send_error("WebSocket", str(e))
                 if self._running:
                     await asyncio.sleep(5)
 
@@ -272,6 +290,13 @@ class VwapV41Runner:
             if self._bar_count % 50 == 0:
                 logger.info("Warmup: %d / %d", self._bar_count, self.config.warmup_bars)
             return
+
+        # Notify once when warmup completes
+        if self._tg and not getattr(self, "_warmup_notified", False):
+            self._warmup_notified = True
+            asyncio.get_event_loop().create_task(
+                self._tg.send_warmup_done(self._bar_count, self.config.symbol)
+            )
 
         # Validate required columns
         if "buy_vwap_dist_sum" not in bars_df.columns:
@@ -352,6 +377,20 @@ class VwapV41Runner:
             "avg_fill_price": None,
             "filled_contracts": None,
         })
+
+        # ── Telegram: trade signal ──
+        if self._tg:
+            asyncio.get_event_loop().create_task(
+                self._tg.send_trade(
+                    action=action,
+                    old_pos=old_pos, new_pos=new_pos, price=price,
+                    close_pnl_bps=close_pnl_bps,
+                    est_fee_bps=est_fee_bps,
+                    est_net_pnl=est_net_pnl,
+                    cum_pnl_estimated=self._cum_pnl_estimated,
+                    symbol=self.config.symbol,
+                )
+            )
 
         # ── Submit live order and register fill callback ──
         if self.config.is_live:
@@ -486,6 +525,22 @@ class VwapV41Runner:
         )
         logger.info("FILL STATS | %s", self._fill_stats.summary_line())
 
+        # ── Telegram: fill confirmation ──
+        if self._tg:
+            asyncio.get_event_loop().create_task(
+                self._tg.send_fill(
+                    trade_idx=trade_idx,
+                    fill_status=fill_status,
+                    contracts=filled_contracts,
+                    avg_fill_price=avg_fill_price,
+                    actual_fee_bps=actual_fee_bps,
+                    est_fee_bps=est_fee_bps,
+                    net_pnl=actual_net_pnl,
+                    cum_pnl_actual=self._cum_pnl_actual,
+                    fill_stats_line=self._fill_stats.summary_line(),
+                )
+            )
+
     def _compute_contracts(self, price: float) -> float:
         if self.config.position_size_usd > 0:
             return self.config.position_size_usd / max(price, 1e-8)
@@ -504,6 +559,12 @@ class VwapV41Runner:
             "PnL summary | estimated=%+.1f bps | actual=%+.1f bps",
             self._cum_pnl_estimated, self._cum_pnl_actual,
         )
+        if self._tg:
+            self._tg.send_sync(
+                f"🛑 Runner stopped | trades={len(self._trade_log)} | "
+                f"PnL est={self._cum_pnl_estimated:+.1f} actual={self._cum_pnl_actual:+.1f} bps\n"
+                + (self._fill_stats.summary_line() if self._fill_stats.n_orders > 0 else "")
+            )
 
     def get_trade_log(self) -> list:
         return self._trade_log
