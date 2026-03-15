@@ -64,16 +64,32 @@ class BinancePerpetualClient:
         """Get order book for mid price."""
         return self.exchange.fetch_order_book(symbol, limit)
 
-    def get_mid_price(self, symbol: str) -> float:
-        """Get mid price from order book."""
-        ob = self.fetch_order_book(symbol, 5)
+    def get_best_prices(self, symbol: str) -> tuple[float, float]:
+        """
+        Return (best_bid, best_ask) from the top of the order book.
+
+        These are the correct prices for maker limit orders:
+          - buy  limit → best_bid  (queues behind existing bids, does not cross spread)
+          - sell limit → best_ask  (queues behind existing asks, does not cross spread)
+
+        Placing at mid price risks rounding onto the opposite side on a
+        1-tick spread (very common for SOL/USDC perp), resulting in an
+        immediate taker fill.
+        """
+        ob = self.fetch_order_book(symbol, 1)
         bids = ob.get("bids", [])
         asks = ob.get("asks", [])
         if not bids or not asks:
             ticker = self.fetch_ticker(symbol)
-            return float(ticker.get("last", 0))
+            last = float(ticker.get("last", 0))
+            return last, last
         best_bid = float(bids[0][0])
         best_ask = float(asks[0][0])
+        return best_bid, best_ask
+
+    def get_mid_price(self, symbol: str) -> float:
+        """Mid price for reference only — do NOT use for limit order placement."""
+        best_bid, best_ask = self.get_best_prices(symbol)
         return (best_bid + best_ask) / 2.0
 
     def create_limit_order(

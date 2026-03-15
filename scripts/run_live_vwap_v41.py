@@ -26,6 +26,7 @@ import logging
 import os
 import signal
 import sys
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -51,6 +52,53 @@ try:
     import websockets
 except ImportError:
     websockets = None
+
+
+# ═══════════════════════════════════════════════════════════
+# Fill statistics tracker
+# ═══════════════════════════════════════════════════════════
+
+@dataclass
+class FillStats:
+    """
+    Tracks actual vs estimated execution costs across all live orders.
+
+    Updated asynchronously when each order's thread-pool future resolves.
+    """
+    n_orders: int = 0           # total completed orders
+    n_maker: int = 0            # fully filled as maker (limit, no fallback)
+    n_taker: int = 0            # fell back entirely to market order
+    n_partial: int = 0          # partial maker + market
+    n_failed: int = 0           # order returned error / exception
+    total_actual_cost_bps: float = 0.0
+    total_estimated_cost_bps: float = 0.0
+
+    @property
+    def actual_maker_rate(self) -> float:
+        return self.n_maker / self.n_orders if self.n_orders else 0.0
+
+    @property
+    def avg_actual_cost_bps(self) -> float:
+        return self.total_actual_cost_bps / self.n_orders if self.n_orders else 0.0
+
+    @property
+    def avg_estimated_cost_bps(self) -> float:
+        return self.total_estimated_cost_bps / self.n_orders if self.n_orders else 0.0
+
+    @property
+    def cost_slippage_bps(self) -> float:
+        """Actual − estimated per order (positive = paid more than expected)."""
+        return self.avg_actual_cost_bps - self.avg_estimated_cost_bps
+
+    def summary_line(self) -> str:
+        return (
+            f"FillStats | orders={self.n_orders} "
+            f"maker={self.n_maker}({self.actual_maker_rate:.0%}) "
+            f"taker={self.n_taker} partial={self.n_partial} failed={self.n_failed} | "
+            f"avg_cost: actual={self.avg_actual_cost_bps:.2f}bps "
+            f"est={self.avg_estimated_cost_bps:.2f}bps "
+            f"slip={self.cost_slippage_bps:+.2f}bps"
+        )
 
 
 # ═══════════════════════════════════════════════════════════
@@ -94,17 +142,26 @@ class VwapV41Runner:
             ema_w2=config.v41_ema_w2,
         )
 
-        # State
+        # Position state
         self._position: float = 0.0
         self._entry_price: float = 0.0
         self._bar_count: int = 0
-        self._cum_pnl_bps: float = 0.0
+
+        # PnL tracking (two tracks: estimated=immediate, actual=updated on fill)
+        self._cum_pnl_estimated: float = 0.0   # uses blended_fee_bps, available instantly
+        self._cum_pnl_actual: float = 0.0      # uses real fill result, async update
+
+        # Trade log: list of dicts; live entries are patched in-place by fill callback
         self._trade_log: list = []
 
-        # Live
+        # Execution statistics (live mode only)
+        self._fill_stats: FillStats = FillStats()
+
+        # Live exchange objects
         self._client = None
         self._executor = None
         self._running = False
+        self._account_free: float = 0.0
 
     # ─── Live init ───
 
@@ -247,7 +304,7 @@ class VwapV41Runner:
         if abs(delta) < 1e-8:
             return
 
-        # PnL from closing
+        # ── Gross PnL from the closing leg ──
         close_pnl_bps = 0.0
         if old_pos != 0 and self._entry_price > 0:
             if old_pos > 0:
@@ -255,18 +312,27 @@ class VwapV41Runner:
             else:
                 close_pnl_bps = (1 - price / self._entry_price) * 10000 * abs(old_pos)
 
-        fee_bps = abs(delta) * self.cost_model.blended_fee_bps(self.config.maker_fill_rate)
-        net_pnl = close_pnl_bps - fee_bps
-        self._cum_pnl_bps += net_pnl
+        # ── Fee estimate (used immediately for simulate mode and cumulative tracking) ──
+        est_fee_bps = abs(delta) * self.cost_model.blended_fee_bps(self.config.maker_fill_rate)
+        est_net_pnl = close_pnl_bps - est_fee_bps
+        self._cum_pnl_estimated += est_net_pnl
+        # Actual cumulative starts equal to estimated; patched later for live orders
+        self._cum_pnl_actual += est_net_pnl
 
         action = "LONG" if delta > 0 else "SHORT" if delta < 0 else "FLAT"
+        fee_source = "estimate"
+
         logger.info(
-            "[%s] pos %.1f→%.1f @ %.4f | close_pnl=%+.1f fee=%.1f net=%+.1f | cum=%+.1f bps",
+            "[%s] pos %.1f→%.1f @ %.4f | close_pnl=%+.1f est_fee=%.2f est_net=%+.1f "
+            "| cum_est=%+.1f bps",
             action, old_pos, new_pos, price,
-            close_pnl_bps, fee_bps, net_pnl, self._cum_pnl_bps,
+            close_pnl_bps, est_fee_bps, est_net_pnl, self._cum_pnl_estimated,
         )
 
+        # Trade log entry — live orders will be patched in-place by _on_fill_complete
+        trade_idx = len(self._trade_log)
         self._trade_log.append({
+            "trade_idx": trade_idx,
             "time": datetime.now(timezone.utc).isoformat(),
             "action": action,
             "old_pos": old_pos,
@@ -274,40 +340,151 @@ class VwapV41Runner:
             "price": price,
             "signal": signal,
             "close_pnl_bps": round(close_pnl_bps, 3),
-            "fee_bps": round(fee_bps, 3),
-            "net_pnl_bps": round(net_pnl, 3),
-            "cum_pnl_bps": round(self._cum_pnl_bps, 3),
+            # Fee fields — updated to actuals when live fill completes
+            "fee_source": fee_source,
+            "fee_bps": round(est_fee_bps, 3),
+            "net_pnl_bps": round(est_net_pnl, 3),
+            "cum_pnl_estimated": round(self._cum_pnl_estimated, 3),
+            "cum_pnl_actual": round(self._cum_pnl_actual, 3),
+            # Fill detail — populated for live orders after execution
+            "fill_status": "simulate" if not self.config.is_live else "pending",
+            "is_maker": None,
+            "avg_fill_price": None,
+            "filled_contracts": None,
         })
 
-        # Live order
+        # ── Submit live order and register fill callback ──
         if self.config.is_live:
-            self._send_live_order(delta, price)
+            self._send_live_order(delta, price, trade_idx, est_fee_bps)
 
-        # Update state
+        # Update position state
         self._position = new_pos
         if abs(new_pos) > 1e-8 and abs(old_pos) < 1e-8:
             self._entry_price = price
         elif abs(new_pos) < 1e-8:
             self._entry_price = 0.0
 
-    def _send_live_order(self, delta: float, price: float) -> None:
+    def _send_live_order(
+        self, delta: float, price: float, trade_idx: int, est_fee_bps: float
+    ) -> None:
+        """Submit order to thread pool; register callback to patch trade log on fill."""
         if self._client is None or self._executor is None:
             return
 
         side = "buy" if delta > 0 else "sell"
-        # Compute notional in contracts
         contracts = abs(delta) * self._compute_contracts(price)
         logger.info("LIVE ORDER: %s %.4f %s", side, contracts, self.config.symbol)
 
         loop = asyncio.get_event_loop()
-        loop.run_in_executor(
+        future = loop.run_in_executor(
             None,
             lambda: self._executor.execute(
                 symbol=self.config.symbol,
                 side=side,
                 amount=contracts,
-            )
+            ),
         )
+
+        # done_callback fires in the thread-pool thread; use call_soon_threadsafe
+        # to marshal the update back to the asyncio event loop thread safely.
+        def _on_done(fut):
+            loop.call_soon_threadsafe(
+                self._on_fill_complete, trade_idx, est_fee_bps, contracts, fut
+            )
+
+        future.add_done_callback(_on_done)
+
+    def _on_fill_complete(
+        self,
+        trade_idx: int,
+        est_fee_bps: float,
+        contracts: float,
+        future,
+    ) -> None:
+        """
+        Called (on the event-loop thread) when the executor.execute() future resolves.
+
+        Patches the trade log entry with actual fill data and updates FillStats
+        and the actual cumulative PnL.
+        """
+        entry = self._trade_log[trade_idx]
+
+        try:
+            result: Dict[str, Any] = future.result()
+        except Exception as exc:
+            logger.error("Order execution raised exception: %s", exc)
+            entry["fill_status"] = "error"
+            entry["fill_error"] = str(exc)
+            self._fill_stats.n_failed += 1
+            self._fill_stats.n_orders += 1
+            logger.warning("FILL STATS | %s", self._fill_stats.summary_line())
+            return
+
+        if not result.get("filled"):
+            err = result.get("error", "unknown")
+            logger.error("Order not filled: %s", err)
+            entry["fill_status"] = "failed"
+            entry["fill_error"] = err
+            self._fill_stats.n_failed += 1
+            self._fill_stats.n_orders += 1
+            logger.warning("FILL STATS | %s", self._fill_stats.summary_line())
+            return
+
+        # ── Compute actual fee in bps (same unit as est_fee_bps) ──
+        # result["cost_bps"] is the per-leg fee rate (e.g. 2.0 maker, 5.0 taker, or blended)
+        # We multiply by |delta|=1 because size is already captured in contracts.
+        actual_fee_rate_bps = float(result.get("cost_bps", self.cost_model.maker_fee_bps))
+        actual_fee_bps = actual_fee_rate_bps   # delta=1 unit; contracts handles size
+
+        is_maker: bool = result.get("is_maker", False)
+        avg_fill_price: float = float(result.get("avg_price", entry["price"]))
+        filled_contracts: float = float(result.get("filled_amount", contracts))
+
+        # ── Determine fill category ──
+        if is_maker:
+            fill_status = "maker"
+            self._fill_stats.n_maker += 1
+        else:
+            # Check if partially filled as maker (mixed cost signals partial)
+            if actual_fee_rate_bps < self.cost_model.taker_fee_bps:
+                fill_status = "partial"
+                self._fill_stats.n_partial += 1
+            else:
+                fill_status = "taker"
+                self._fill_stats.n_taker += 1
+
+        # ── Update cumulative actual PnL (correct the estimate we added earlier) ──
+        fee_correction = actual_fee_bps - est_fee_bps   # positive = paid more than estimated
+        self._cum_pnl_actual -= fee_correction
+
+        # ── Patch trade log entry in-place ──
+        actual_net_pnl = entry["close_pnl_bps"] - actual_fee_bps
+        entry.update({
+            "fee_source": "actual",
+            "fee_bps": round(actual_fee_bps, 3),
+            "net_pnl_bps": round(actual_net_pnl, 3),
+            "cum_pnl_actual": round(self._cum_pnl_actual, 3),
+            "fill_status": fill_status,
+            "is_maker": is_maker,
+            "avg_fill_price": round(avg_fill_price, 6),
+            "filled_contracts": round(filled_contracts, 6),
+            "fee_rate_bps": round(actual_fee_rate_bps, 3),
+        })
+
+        # ── Update FillStats ──
+        self._fill_stats.n_orders += 1
+        self._fill_stats.total_actual_cost_bps += actual_fee_bps
+        self._fill_stats.total_estimated_cost_bps += est_fee_bps
+
+        logger.info(
+            "FILL #%d [%s] contracts=%.4f @ %.6f | "
+            "fee: actual=%.2f est=%.2f diff=%+.2f bps | "
+            "net_pnl=%+.2f | cum_actual=%+.1f bps",
+            trade_idx, fill_status.upper(), filled_contracts, avg_fill_price,
+            actual_fee_bps, est_fee_bps, fee_correction,
+            actual_net_pnl, self._cum_pnl_actual,
+        )
+        logger.info("FILL STATS | %s", self._fill_stats.summary_line())
 
     def _compute_contracts(self, price: float) -> float:
         if self.config.position_size_usd > 0:
@@ -321,15 +498,27 @@ class VwapV41Runner:
     def stop(self) -> None:
         logger.info("Stopping runner...")
         self._running = False
+        if self.config.is_live and self._fill_stats.n_orders > 0:
+            logger.info("Final %s", self._fill_stats.summary_line())
+        logger.info(
+            "PnL summary | estimated=%+.1f bps | actual=%+.1f bps",
+            self._cum_pnl_estimated, self._cum_pnl_actual,
+        )
 
     def get_trade_log(self) -> list:
         return self._trade_log
+
+    def get_fill_stats(self) -> FillStats:
+        return self._fill_stats
 
     def save_trade_log(self, path: str) -> None:
         if self._trade_log:
             df = pd.DataFrame(self._trade_log)
             df.to_csv(path, index=False)
             logger.info("Trade log saved → %s", path)
+            if self.config.is_live:
+                logger.info("  Columns include fee_source, fill_status, is_maker, "
+                            "avg_fill_price, fee_rate_bps, cum_pnl_actual")
 
 
 # ═══════════════════════════════════════════════════════════
@@ -341,16 +530,16 @@ def parse_args():
     p.add_argument("--mode", default="simulate", choices=["simulate", "live"])
     p.add_argument("--symbol", default="SOL/USDC")
     p.add_argument("--tpb", type=int, default=500, help="Trades per bar")
-    p.add_argument("--warmup", type=int, default=200, help="Warmup bars before trading")
-    p.add_argument("--history", type=int, default=600, help="Max bars to keep in memory")
+    p.add_argument("--warmup", type=int, default=150, help="Warmup bars before trading")
+    p.add_argument("--history", type=int, default=200, help="Max bars to keep in memory")
     p.add_argument("--fw1", type=int, default=8)
     p.add_argument("--ema_w1", type=int, default=10)
     p.add_argument("--fw2", type=int, default=10)
     p.add_argument("--ema_w2", type=int, default=10)
-    p.add_argument("--leverage", type=int, default=1)
+    p.add_argument("--leverage", type=int, default=2)
     p.add_argument("--position_usd", type=float, default=0.0,
                    help="Fixed USD notional per trade; 0 = use max_position_pct")
-    p.add_argument("--max_pct", type=float, default=0.10,
+    p.add_argument("--max_pct", type=float, default=0.30,
                    help="Max fraction of free balance per position")
     p.add_argument("--maker_fill_rate", type=float, default=0.7)
     p.add_argument("--log_dir", default="logs")

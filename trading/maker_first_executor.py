@@ -1,7 +1,9 @@
 """
 Maker-first-then-taker order execution.
 
-1. Place limit order at mid price (maker)
+1. Place limit order at same-side best price (maker)
+     buy  → best_bid  (joins bid queue, does not cross spread)
+     sell → best_ask  (joins ask queue, does not cross spread)
 2. Wait maker_timeout_sec
 3. If not filled, cancel and place market order (taker)
 """
@@ -50,20 +52,29 @@ class MakerFirstExecutor:
           - order_id: str
           - cost_bps: float
         """
-        mid = self.client.get_mid_price(symbol)
-        if mid <= 0:
-            return {"filled": False, "filled_amount": 0, "error": "no mid price"}
+        best_bid, best_ask = self.client.get_best_prices(symbol)
+        if best_bid <= 0 or best_ask <= 0:
+            return {"filled": False, "filled_amount": 0, "error": "no best price"}
 
-        # 1. Place limit order at mid
+        # Limit price: same side as the order so we rest inside the spread (maker)
+        #   buy  → best_bid:  below best_ask, will not cross
+        #   sell → best_ask:  above best_bid, will not cross
+        limit_price = best_bid if side == "buy" else best_ask
+        mid = (best_bid + best_ask) / 2.0   # kept for fallback avg_price references only
+
+        # 1. Place limit order at same-side best price
         limit_order = self.client.create_limit_order(
             symbol=symbol,
             side=side,
             amount=amount,
-            price=mid,
+            price=limit_price,
             reduce_only=reduce_only,
         )
         order_id = limit_order.get("id")
-        logger.info(f"Limit order placed: {order_id} {side} {amount} @ {mid}")
+        logger.info(
+            f"Limit order placed: {order_id} {side} {amount} @ {limit_price} "
+            f"(bid={best_bid} ask={best_ask})"
+        )
 
         # 2. Wait for fill
         start = time.time()
@@ -73,7 +84,7 @@ class MakerFirstExecutor:
             remaining = float(status.get("remaining", amount) or amount)
             if remaining <= 0 or status.get("status") == "closed":
                 # Filled as maker
-                avg_price = float(status.get("average", mid) or mid)
+                avg_price = float(status.get("average", limit_price) or limit_price)
                 cost_bps = self.cost_model.maker_cost_bps()
                 logger.info(f"Filled as maker: {filled} @ {avg_price}, cost={cost_bps} bps")
                 return {
@@ -98,7 +109,7 @@ class MakerFirstExecutor:
         remaining = float(status.get("remaining", amount) or amount)
 
         if remaining <= 0:
-            avg_price = float(status.get("average", mid) or mid)
+            avg_price = float(status.get("average", limit_price) or limit_price)
             return {
                 "filled": True,
                 "filled_amount": filled,
@@ -116,7 +127,7 @@ class MakerFirstExecutor:
             reduce_only=reduce_only,
         )
         m_filled = float(market_order.get("filled", remaining) or remaining)
-        m_avg = float(market_order.get("average", mid) or mid)
+        m_avg = float(market_order.get("average", limit_price) or limit_price)
 
         total_filled = filled + m_filled
         # Mixed cost: maker portion + taker portion
@@ -134,9 +145,9 @@ class MakerFirstExecutor:
         return {
             "filled": True,
             "filled_amount": total_filled,
-            "avg_price": (filled * (status.get("average") or mid) + m_filled * m_avg) / total_filled
+            "avg_price": (filled * (status.get("average") or limit_price) + m_filled * m_avg) / total_filled
             if total_filled > 0
-            else mid,
+            else limit_price,
             "is_maker": False,
             "order_id": order_id,
             "cost_bps": cost_bps,
