@@ -1,0 +1,2033 @@
+═══════════════════════════════════════════════════════
+Signal Scan Pipeline
+  Symbol:    SOL/USDC
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC
+═══════════════════════════════════════════════════════
+
+── Phase 2: Signal Scan ──
+  4 trade-count levels: [150, 500, 2000, 6000]
+  2 trade sources: [raw, merged]
+  8 raw factors + 13 merged factors = 21 total
+  Estimated time: ~5-15 minutes
+
+21:01:45 [rule_backtest.signal_scan] INFO: ═══ Signal scan: SOL/USDC | source=raw | tpb=150 ═══
+21:01:45 [rule_backtest.data_loader] INFO: Loading 14 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+21:01:51 [rule_backtest.data_loader] INFO: Loaded 1479426 trades, 2026-02-18 16:00:00.094000+00:00 → 2026-03-04 15:59:58.998000+00:00
+21:01:53 [rule_backtest.signal_scan] INFO: Built 9862 bars (~91s avg duration)
+21:02:17 [rule_backtest.signal_scan] INFO: Evaluated 1118 combos
+21:02:17 [rule_backtest.signal_scan] INFO: Saved → /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_raw_tpb150.csv  (1118 rows)
+21:02:17 [rule_backtest.signal_scan] INFO: ═══ Signal scan: SOL/USDC | source=merged | tpb=150 ═══
+21:02:17 [rule_backtest.data_loader] INFO: Loading 14 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+21:02:18 [rule_backtest.data_loader] INFO: Loaded 1479426 trades, 2026-02-18 16:00:00.094000+00:00 → 2026-03-04 15:59:58.998000+00:00
+21:02:19 [rule_backtest.data_loader] INFO: Merged 1479426 aggTrades → 1143550 taker orders (22.7% reduction, 223207 multi-fill groups)
+21:02:27 [rule_backtest.signal_scan] INFO: Built 7623 bars (~124s avg duration)
+21:03:36 [rule_backtest.signal_scan] INFO: Evaluated 3311 combos
+21:03:36 [rule_backtest.signal_scan] INFO: Saved → /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_merged_tpb150.csv  (3311 rows)
+21:03:36 [rule_backtest.signal_scan] INFO: ═══ Signal scan: SOL/USDC | source=raw | tpb=500 ═══
+21:03:36 [rule_backtest.data_loader] INFO: Loading 14 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+21:03:36 [rule_backtest.data_loader] INFO: Loaded 1479426 trades, 2026-02-18 16:00:00.094000+00:00 → 2026-03-04 15:59:58.998000+00:00
+21:03:37 [rule_backtest.signal_scan] INFO: Built 2958 bars (~317s avg duration)
+21:03:46 [rule_backtest.signal_scan] INFO: Evaluated 962 combos
+21:03:46 [rule_backtest.signal_scan] INFO: Saved → /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_raw_tpb500.csv  (962 rows)
+21:03:46 [rule_backtest.signal_scan] INFO: ═══ Signal scan: SOL/USDC | source=merged | tpb=500 ═══
+21:03:46 [rule_backtest.data_loader] INFO: Loading 14 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+21:03:46 [rule_backtest.data_loader] INFO: Loaded 1479426 trades, 2026-02-18 16:00:00.094000+00:00 → 2026-03-04 15:59:58.998000+00:00
+21:03:48 [rule_backtest.data_loader] INFO: Merged 1479426 aggTrades → 1143550 taker orders (22.7% reduction, 223207 multi-fill groups)
+21:03:50 [rule_backtest.signal_scan] INFO: Built 2287 bars (~428s avg duration)
+21:04:19 [rule_backtest.signal_scan] INFO: Evaluated 2849 combos
+21:04:19 [rule_backtest.signal_scan] INFO: Saved → /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_merged_tpb500.csv  (2849 rows)
+21:04:20 [rule_backtest.signal_scan] INFO: ═══ Signal scan: SOL/USDC | source=raw | tpb=2000 ═══
+21:04:20 [rule_backtest.data_loader] INFO: Loading 14 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+21:04:20 [rule_backtest.data_loader] INFO: Loaded 1479426 trades, 2026-02-18 16:00:00.094000+00:00 → 2026-03-04 15:59:58.998000+00:00
+21:04:20 [rule_backtest.signal_scan] INFO: Built 739 bars (~1361s avg duration)
+21:04:25 [rule_backtest.signal_scan] INFO: Evaluated 612 combos
+21:04:25 [rule_backtest.signal_scan] INFO: Saved → /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_raw_tpb2000.csv  (612 rows)
+21:04:25 [rule_backtest.signal_scan] INFO: ═══ Signal scan: SOL/USDC | source=merged | tpb=2000 ═══
+21:04:25 [rule_backtest.data_loader] INFO: Loading 14 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+21:04:25 [rule_backtest.data_loader] INFO: Loaded 1479426 trades, 2026-02-18 16:00:00.094000+00:00 → 2026-03-04 15:59:58.998000+00:00
+21:04:26 [rule_backtest.data_loader] INFO: Merged 1479426 aggTrades → 1143550 taker orders (22.7% reduction, 223207 multi-fill groups)
+21:04:27 [rule_backtest.signal_scan] INFO: Built 571 bars (~1770s avg duration)
+21:04:45 [rule_backtest.signal_scan] INFO: Evaluated 1904 combos
+21:04:45 [rule_backtest.signal_scan] INFO: Saved → /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_merged_tpb2000.csv  (1904 rows)
+21:04:45 [rule_backtest.signal_scan] INFO: ═══ Signal scan: SOL/USDC | source=raw | tpb=6000 ═══
+21:04:45 [rule_backtest.data_loader] INFO: Loading 14 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+21:04:45 [rule_backtest.data_loader] INFO: Loaded 1479426 trades, 2026-02-18 16:00:00.094000+00:00 → 2026-03-04 15:59:58.998000+00:00
+21:04:45 [rule_backtest.signal_scan] INFO: Built 246 bars (~4004s avg duration)
+21:04:48 [rule_backtest.signal_scan] INFO: Evaluated 416 combos
+21:04:48 [rule_backtest.signal_scan] INFO: Saved → /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_raw_tpb6000.csv  (416 rows)
+21:04:48 [rule_backtest.signal_scan] INFO: ═══ Signal scan: SOL/USDC | source=merged | tpb=6000 ═══
+21:04:48 [rule_backtest.data_loader] INFO: Loading 14 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+21:04:48 [rule_backtest.data_loader] INFO: Loaded 1479426 trades, 2026-02-18 16:00:00.094000+00:00 → 2026-03-04 15:59:58.998000+00:00
+21:04:49 [rule_backtest.data_loader] INFO: Merged 1479426 aggTrades → 1143550 taker orders (22.7% reduction, 223207 multi-fill groups)
+21:04:50 [rule_backtest.signal_scan] INFO: Built 190 bars (~5403s avg duration)
+21:05:01 [rule_backtest.signal_scan] INFO: Evaluated 1404 combos
+21:05:01 [rule_backtest.signal_scan] INFO: Saved → /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_merged_tpb6000.csv  (1404 rows)
+
+============================================================
+Signal Scan: SOL/USDC
+Sources: ['raw', 'merged']  |  Levels: [150, 500, 2000, 6000]
+Output: /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC
+============================================================
+  raw     tpb=  150: 8 factors × 4 fwindows × 43 signals = 1,376 combos
+  merged  tpb=  150: 21 factors × 4 fwindows × 43 signals = 3,612 combos
+  raw     tpb=  500: 8 factors × 4 fwindows × 37 signals = 1,184 combos
+  merged  tpb=  500: 21 factors × 4 fwindows × 37 signals = 3,108 combos
+  raw     tpb= 2000: 8 factors × 3 fwindows × 36 signals = 864 combos
+  merged  tpb= 2000: 21 factors × 3 fwindows × 36 signals = 2,268 combos
+  raw     tpb= 6000: 8 factors × 3 fwindows × 36 signals = 864 combos
+  merged  tpb= 6000: 21 factors × 3 fwindows × 36 signals = 2,268 combos
+  Total: 15,544 evaluations
+  Estimated runtime: 4.5 - 9.0 minutes
+
+
+  Top 5 for raw tpb=150:
+      factor  factor_window     type  ic_ir  triple_acc  hit_long  hit_short  signal_auto
+kyles_lambda             10 quantile 0.2425      0.5319    0.5128     0.5096       0.6920
+kyles_lambda             10 quantile 0.2425      0.5155    0.5068     0.4963       0.6703
+kyles_lambda             10 quantile 0.2425      0.5107    0.4939     0.4884       0.7649
+kyles_lambda             10 quantile 0.2425      0.5097    0.5068     0.4764       0.7086
+kyles_lambda             10 ma_cross 0.2425      0.4986    0.4898     0.4859       0.7584
+
+  Top 5 for merged tpb=150:
+         factor  factor_window     type  ic_ir  triple_acc  hit_long  hit_short  signal_auto
+trade_imbalance              3   zscore 0.4267      0.5217    0.5117     0.4977       0.0313
+trade_imbalance             10    delta 0.4267      0.5159    0.5044     0.5143       0.0049
+trade_imbalance             10 ma_cross 0.4267      0.5067    0.4924     0.5022       0.4626
+trade_imbalance             10 ma_cross 0.4267      0.4955    0.4857     0.4969       0.6100
+trade_imbalance             10 ma_cross 0.4267      0.4985    0.4888     0.4993       0.6263
+
+  Top 5 for raw tpb=500:
+        factor  factor_window      type  ic_ir  triple_acc  hit_long  hit_short  signal_auto
+taker_vol_corr             15 bollinger 0.6169      0.4525    0.4573     0.4773       0.7050
+taker_vol_corr             15    zscore 0.6169      0.5475    0.5097     0.5124       0.7050
+taker_vol_corr             15  quantile 0.6169      0.5593    0.5245     0.5185       0.6341
+taker_vol_corr             15  quantile 0.6169      0.5377    0.4948     0.5160       0.7543
+taker_vol_corr             15  quantile 0.6169      0.5360    0.5066     0.5194       0.4803
+
+  Top 5 for merged tpb=500:
+               factor  factor_window      type  ic_ir  triple_acc  hit_long  hit_short  signal_auto
+volume_skew_imbalance             10  quantile 0.7803      0.5365    0.5149     0.5108       0.7376
+volume_skew_imbalance             10 bollinger 0.7803      0.5000    0.5275     0.6076       0.4469
+volume_skew_imbalance             10  ma_cross 0.7803      0.5128    0.5018     0.4952       0.7621
+volume_skew_imbalance             10  ma_cross 0.7803      0.5255    0.5217     0.5129       0.8444
+volume_skew_imbalance             10  ma_cross 0.7803      0.5298    0.5223     0.5145       0.8689
+
+  Top 5 for raw tpb=2000:
+       factor  factor_window     type  ic_ir  triple_acc  hit_long  hit_short  signal_auto
+volume_zscore              5   zscore 0.4395      0.5298    0.5821     0.5000       0.0584
+volume_zscore              5    delta 0.4395      0.5419    0.5646     0.5114       0.1384
+volume_zscore              5 ma_cross 0.4395      0.4928    0.5187     0.4592       0.5405
+volume_zscore              5     rank 0.4395      0.5960    0.5949     0.0000       0.0237
+volume_zscore              5     rank 0.4395      0.5625    0.5779     0.4923       0.0634
+
+  Top 5 for merged tpb=2000:
+               factor  factor_window      type  ic_ir  triple_acc  hit_long  hit_short  signal_auto
+volume_skew_imbalance              3  quantile 2.7563      0.5350    0.5877     0.4874       0.5590
+volume_skew_imbalance              3    zscore 2.7563      0.5409    0.5630     0.5431       0.3529
+volume_skew_imbalance              3 bollinger 2.7563      0.6250    0.5333     0.3636       0.1144
+volume_skew_imbalance              3 bollinger 2.7563      0.5500    0.5283     0.4419       0.3843
+volume_skew_imbalance              3 bollinger 2.7563      0.0000    0.0000     0.0000          NaN
+
+  Top 5 for raw tpb=6000:
+      factor  factor_window      type  ic_ir  triple_acc  hit_long  hit_short  signal_auto
+price_impact              8 bollinger 0.5492      0.7143    0.0000     0.7143      -0.0295
+price_impact              5    zscore 0.5492      0.0000    0.0000     0.0000          NaN
+price_impact              3     delta 0.5492      0.5590    0.5366     0.5128       0.1290
+price_impact              3 bollinger 0.5492      0.5385    0.0000     0.5000      -0.0574
+price_impact              3 bollinger 0.5492      0.0000    0.0000     0.0000          NaN
+
+  Top 5 for merged tpb=6000:
+                 factor  factor_window      type  ic_ir  triple_acc  hit_long  hit_short  signal_auto
+vwap_dist_sum_imbalance              3  ma_cross 4.8406      0.5840    0.5729     0.5393       0.5197
+vwap_dist_sum_imbalance              3  ma_cross 4.8406      0.6129    0.6000     0.5730       0.6264
+vwap_dist_sum_imbalance              3 bollinger 4.8406      0.4000    0.3810     0.5294       0.3934
+vwap_dist_sum_imbalance              3 bollinger 4.8406      0.0000    0.0000     0.0000          NaN
+vwap_dist_sum_imbalance              3 bollinger 4.8406      0.6429    0.5000     0.7500       0.0544
+
+============================================================
+DONE: 12,576 combos in 196s (3.3 min)
+Results: /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_summary.txt
+============================================================
+
+── Results ──
+================================================================================
+SIGNAL SCAN SUMMARY
+================================================================================
+Total combos evaluated: 12576
+Trade sources: ['merged', 'raw']
+Trades/bar levels: [150, 500, 2000, 6000]
+Factors tested: ['buy_sell_ratio', 'kyles_lambda', 'mf_vol_median_ratio_imbalance', 'multi_fill_count_imbalance', 'multi_fill_volume_imbalance', 'off_top_volume_delta_imbalance', 'off_top_volume_imbalance', 'price_impact', 'price_range_reg_imbalance', 'taker_vol_corr', 'taker_vol_skew', 'trade_imbalance', 'volume_acceleration', 'volume_asymmetry', 'volume_autocorr_imbalance', 'volume_skew_imbalance', 'volume_zscore', 'vwap_dist_reg_imbalance', 'vwap_dist_sum_delta_imbalance', 'vwap_dist_sum_imbalance', 'weighted_vwap_dist_sum']
+
+── Top 30 by IC_IR ──
+trade_source  trades_per_bar                   factor  factor_window      type  window       ic  ic_ir  triple_acc  hit_long  hit_short  signal_auto  change_rate
+      merged            6000  vwap_dist_sum_imbalance              3 bollinger    10.0 0.137087 4.8406      0.5000    0.4286     0.0000       0.2314       0.0642
+      merged            6000  vwap_dist_sum_imbalance              3  ma_cross     NaN 0.137087 4.8406      0.5968    0.5758     0.5529       0.6685       0.1658
+      merged            6000  vwap_dist_sum_imbalance              3    zscore     5.0 0.137087 4.8406      0.0000    0.0000     0.0000          NaN       0.0000
+      merged            6000  vwap_dist_sum_imbalance              3    zscore    10.0 0.137087 4.8406      0.5536    0.5000     0.5278       0.5134       0.3369
+      merged            6000  vwap_dist_sum_imbalance              3    zscore    10.0 0.137087 4.8406      0.5000    0.0000     0.5714       0.2314       0.0642
+      merged            6000  vwap_dist_sum_imbalance              3    zscore    15.0 0.137087 4.8406      0.6538    0.5526     0.6061       0.5626       0.3155
+      merged            6000  vwap_dist_sum_imbalance              3    zscore    15.0 0.137087 4.8406      0.7273    0.4545     0.7647       0.4965       0.1497
+      merged            6000  vwap_dist_sum_imbalance              3    zscore    15.0 0.137087 4.8406      0.6000    0.0000     0.0000       0.1369       0.0642
+      merged            6000  vwap_dist_sum_imbalance              3  quantile    10.0 0.137087 4.8406      0.5781    0.5349     0.5854       0.5118       0.3904
+      merged            6000  vwap_dist_sum_imbalance              3  quantile    10.0 0.137087 4.8406      0.5676    0.4800     0.5600       0.3800       0.3155
+      merged            6000  vwap_dist_sum_imbalance              3  quantile    15.0 0.137087 4.8406      0.6481    0.5385     0.6286       0.4994       0.3636
+      merged            6000  vwap_dist_sum_imbalance              3  quantile    15.0 0.137087 4.8406      0.6585    0.5714     0.5926       0.5090       0.2727
+      merged            6000  vwap_dist_sum_imbalance              3    zscore     5.0 0.137087 4.8406      0.3571    0.2500     0.5000       0.0544       0.1818
+      merged            6000  vwap_dist_sum_imbalance              3    zscore     5.0 0.137087 4.8406      0.5556    0.5122     0.5333       0.3831       0.5187
+      merged            6000  vwap_dist_sum_imbalance              3    zscore    10.0 0.137087 4.8406      0.6000    0.4706     0.6190       0.3934       0.2460
+      merged            6000  vwap_dist_sum_imbalance              3      rank     5.0 0.137087 4.8406      0.5938    0.5435     0.0000       0.2780       0.2674
+      merged            6000  vwap_dist_sum_imbalance              3 bollinger     5.0 0.137087 4.8406      0.6429    0.5000     0.7500       0.0544       0.1818
+      merged            6000  vwap_dist_sum_imbalance              3      rank    10.0 0.137087 4.8406      0.5818    0.5556     0.5385       0.4353       0.3690
+      merged            6000  vwap_dist_sum_imbalance              3  ma_cross     NaN 0.137087 4.8406      0.6129    0.6000     0.5730       0.6264       0.1872
+      merged            6000  vwap_dist_sum_imbalance              3 bollinger    10.0 0.137087 4.8406      0.4000    0.3810     0.5294       0.3934       0.2460
+      merged            6000  vwap_dist_sum_imbalance              3 bollinger     5.0 0.137087 4.8406      0.0000    0.0000     0.0000          NaN       0.0000
+      merged            6000  vwap_dist_sum_imbalance              3  ma_cross     NaN 0.137087 4.8406      0.5840    0.5729     0.5393       0.5197       0.2406
+      merged            6000  vwap_dist_sum_imbalance              3     delta     NaN 0.137087 4.8406      0.5328    0.5529     0.5052       0.4220       0.2834
+      merged            6000  vwap_dist_sum_imbalance              3     delta     NaN 0.137087 4.8406      0.5484    0.5638     0.5333       0.3649       0.3155
+      merged            6000  vwap_dist_sum_imbalance              3     delta     NaN 0.137087 4.8406      0.5360    0.5495     0.5106       0.4117       0.2941
+      merged            6000  vwap_dist_sum_imbalance              3      rank    15.0 0.137087 4.8406      0.6471    0.5714     0.5714       0.5214       0.3369
+      merged            6000 off_top_volume_imbalance              3    zscore     5.0 0.118091 4.1588      0.6119    0.6122     0.5897       0.4283       0.4866
+      merged            6000 off_top_volume_imbalance              3      rank     5.0 0.118091 4.1588      0.6190    0.6250     0.0000       0.3613       0.2674
+      merged            6000 off_top_volume_imbalance              3  ma_cross     NaN 0.118091 4.1588      0.5645    0.5670     0.5402       0.6583       0.1711
+      merged            6000 off_top_volume_imbalance              3    zscore     5.0 0.118091 4.1588      0.3529    0.4286     0.3750       0.0370       0.2246
+
+── Best IC_IR per factor ──
+                               trade_source  trades_per_bar  factor_window       type  window        ic   ic_ir  triple_acc  hit_long  hit_short  signal_auto  change_rate
+factor                                                                                                                                                                    
+vwap_dist_sum_imbalance              merged            6000              3  bollinger    10.0  0.137087  4.8406      0.5000    0.4286     0.0000       0.2314       0.0642
+off_top_volume_imbalance             merged            6000              3     zscore     5.0  0.118091  4.1588      0.6119    0.6122     0.5897       0.4283       0.4866
+weighted_vwap_dist_sum               merged            6000              3  bollinger    10.0  0.110918  4.1118      0.2000    0.0000     0.0000       0.0000       0.0642
+price_range_reg_imbalance            merged            6000              3     zscore    10.0  0.092429  4.0038      0.5862    0.5000     0.6000       0.4750       0.2246
+multi_fill_volume_imbalance          merged            6000              3       rank    10.0  0.125382  3.8452      0.6111    0.5714     0.6250       0.4974       0.3583
+multi_fill_count_imbalance           merged            6000              5       rank    15.0  0.076606  3.6355      0.5800    0.5610     0.5484       0.6082       0.2674
+vwap_dist_reg_imbalance              merged            6000              3   ma_cross    15.0  0.088953  3.4369      0.5520    0.5652     0.5269       0.4769       0.2620
+volume_skew_imbalance                merged            2000              3   ma_cross     5.0  0.086227  2.7563      0.4947    0.5217     0.5138       0.4506       0.2746
+buy_sell_ratio                       merged            6000              3     zscore    15.0  0.058106  1.7957      0.6250    0.6667     0.0000      -0.0021       0.1058
+trade_imbalance                      merged            6000              3   quantile    10.0  0.058106  1.7942      0.6786    0.6087     0.6500       0.1619       0.3333
+volume_asymmetry                     merged            6000              8   ma_cross     5.0  0.060816  1.5507      0.5984    0.5652     0.5275       0.4822       0.2595
+volume_autocorr_imbalance            merged            6000              8   quantile    15.0  0.081751  1.4036      0.6038    0.5476     0.6111       0.5539       0.3098
+mf_vol_median_ratio_imbalance        merged            6000              8     zscore    15.0 -0.008438  0.9903      0.2286    0.3000     0.3125       0.6291       0.2032
+vwap_dist_sum_delta_imbalance        merged            6000              3      delta     5.0 -0.024993  0.8316      0.4444    0.4831     0.4479      -0.3377       0.6596
+taker_vol_corr                          raw             500             15  bollinger    20.0  0.028868  0.6169      0.4264    0.4551     0.4419       0.4721       0.1058
+kyles_lambda                            raw             500              5      delta    30.0  0.018704  0.6116      0.5020    0.4956     0.5020       0.3934       0.3032
+
+Full results: /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_combined.csv
+Summary:      /Volumes/Lexar/mean_reversion_data/signal_scan_results/SOL_USDC/signal_scan_summary.txt
+
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+01:32:40 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+01:32:46 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+01:32:50 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+01:32:51 [__main__] INFO:   vwap_dist_sum_imbalance__boll10: 168 combos (flip=False)
+01:33:10 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+01:33:10 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~168
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__boll10/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__boll10/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__boll10/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__boll10/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__boll10] 168 combos in 18.3s | best Sharpe=5.746 | ret=17.50% | DD=-10.19%
+
+======================================================================
+DONE: 168 evaluations in 29s (0.5 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 168
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                      candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.7461         4.9576           17.5008          -10.1887         10.89         1.4714      1674.39        574.57         524.95           312.8             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.7461         4.9576           17.5008          -10.1887         10.89         1.4714      1674.39        574.57         524.95           312.8             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.7461         4.9576           17.5008          -10.1887         10.89         1.4714      1674.39        574.57         524.95           312.8             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.7461         4.9576           17.5008          -10.1887         10.89         1.4714      1674.39        574.57         524.95           312.8             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.5488         4.7890           16.9117           -9.7388         11.09         1.4454      1624.72        435.50         524.95           308.2             67            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.5488         4.7890           16.9117           -9.7388         11.09         1.4454      1624.72        435.50         524.95           308.2             67            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.5488         4.7890           16.9117           -9.7388         11.09         1.4454      1624.72        435.50         524.95           308.2             67            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.5488         4.7890           16.9117           -9.7388         11.09         1.4454      1624.72        435.50         524.95           308.2             67            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4659         4.7151           16.5460          -10.5069         10.89         1.4407      1592.79        553.57         505.15           394.4             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4659         4.7151           16.5460          -10.5069         10.89         1.4407      1592.79        553.57         505.15           394.4             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4659         4.7151           16.5460          -10.5069         10.89         1.4407      1592.79        553.57         505.15           394.4             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4659         4.7151           16.5460          -10.5069         10.89         1.4407      1592.79        553.57         505.15           394.4             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+
+── Best Sharpe per Candidate ──
+                      candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.7461         4.9576           17.5008          -10.1887         10.89         1.4714      1674.39        574.57         524.95           312.8             68            2.4
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                     0.5       0.7       0.9
+candidate                                                  
+vwap_dist_sum_imbalance__boll10  4.6059  4.858407  5.110657
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                      candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__boll10        574.57         524.95      1674.39           312.8        5.7461
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+02:11:14 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+02:11:16 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+02:11:20 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+02:11:21 [__main__] INFO:   vwap_dist_sum_imbalance__boll10: 168 combos (flip=False)
+02:11:35 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+02:11:35 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~168
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__boll10/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__boll10/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__boll10/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__boll10/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__boll10] 168 combos in 13.4s | best Sharpe=5.746 | ret=17.50% | DD=-10.19%
+
+======================================================================
+DONE: 168 evaluations in 21s (0.3 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 168
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                      candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.7461         4.9576           17.5008          -10.1887         10.89         1.4714      1674.39        574.57         524.95           312.8             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.7461         4.9576           17.5008          -10.1887         10.89         1.4714      1674.39        574.57         524.95           312.8             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.7461         4.9576           17.5008          -10.1887         10.89         1.4714      1674.39        574.57         524.95           312.8             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.7461         4.9576           17.5008          -10.1887         10.89         1.4714      1674.39        574.57         524.95           312.8             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.6921         5.1032           18.4071          -11.6818         12.67         1.4178      1758.90       -397.88        -542.75           276.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.5488         4.7890           16.9117           -9.7388         11.09         1.4454      1624.72        435.50         524.95           308.2             67            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.5488         4.7890           16.9117           -9.7388         11.09         1.4454      1624.72        435.50         524.95           308.2             67            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.5488         4.7890           16.9117           -9.7388         11.09         1.4454      1624.72        435.50         524.95           308.2             67            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.5488         4.7890           16.9117           -9.7388         11.09         1.4454      1624.72        435.50         524.95           308.2             67            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4659         4.7151           16.5460          -10.5069         10.89         1.4407      1592.79        553.57         505.15           394.4             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4659         4.7151           16.5460          -10.5069         10.89         1.4407      1592.79        553.57         505.15           394.4             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4659         4.7151           16.5460          -10.5069         10.89         1.4407      1592.79        553.57         505.15           394.4             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4659         4.7151           16.5460          -10.5069         10.89         1.4407      1592.79        553.57         505.15           394.4             68            2.4
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+vwap_dist_sum_imbalance__boll10     1        False              0.7        5.4641         4.9055           17.5594          -11.9202         12.67         1.3961      1686.90       -416.48        -560.15           348.0             60            2.9
+
+── Best Sharpe per Candidate ──
+                      candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__boll10     1        False              0.9        5.7461         4.9576           17.5008          -10.1887         10.89         1.4714      1674.39        574.57         524.95           312.8             68            2.4
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                     0.5       0.7       0.9
+candidate                                                  
+vwap_dist_sum_imbalance__boll10  4.6059  4.858407  5.110657
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                      candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__boll10        574.57         524.95      1674.39           312.8        5.7461
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+Traceback (most recent call last):
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/run_full_backtest_candidates.py", line 34, in <module>
+    from rule_backtest.signals import (
+ImportError: cannot import name 'RawReversalSignal' from 'rule_backtest.signals' (/Users/quqiancheng/mean_reversion_cta_pm/rule_backtest/signals.py)
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+02:15:39 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+02:15:41 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+02:15:46 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+02:15:47 [__main__] INFO:   vwap_dist_sum_imbalance__raw_reversal: 168 combos (flip=False)
+02:16:00 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+02:16:00 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~168
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__raw_reversal] 168 combos in 12.7s | best Sharpe=1.897 | ret=4.85% | DD=-15.78%
+
+======================================================================
+DONE: 168 evaluations in 20s (0.3 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 168
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        1.8971         2.8405            4.8536          -15.7827         40.79         1.0665       530.62       2347.45        2844.39          344.97            102            4.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        1.5757         2.3582            3.9145          -16.1562         40.79         1.0548       440.63       2316.46        2812.22          434.97            102            4.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5        1.2541         1.8762            2.9838          -16.5293         40.79         1.0433       350.63       2285.47        2780.04          524.96            102            4.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        1.0292         1.6511            3.7332          -40.0330         45.74         1.0332       725.68       2309.48         -71.04          549.70             45           11.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        1.0292         1.6511            3.7332          -40.0330         45.74         1.0332       725.68       2309.48         -71.04          549.70             45           11.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.9905         1.4655            2.1681          -15.2350         37.23         1.0353       267.18       2269.38        2892.98          366.72            126            4.0
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.9429         1.3963            2.0372          -15.2350         37.23         1.0335       254.37       2269.38        2938.63          364.88            125            4.0
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.9429         1.3963            2.0372          -15.2350         37.23         1.0335       254.37       2269.38        2938.63          364.88            125            4.0
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.9429         1.3963            2.0372          -15.2350         37.23         1.0335       254.37       2269.38        2938.63          364.88            125            4.0
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.8477         1.2662            1.8332          -15.7827         40.79         1.0290       239.43       2384.38        2502.69          335.78             97            5.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.8268         1.3268            2.2643          -40.4690         45.74         1.0266       582.28       2252.48        -131.04          693.10             45           11.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.8268         1.3268            2.2643          -40.4690         45.74         1.0266       582.28       2252.48        -131.04          693.10             45           11.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.8068         1.1922            1.7240          -15.7827         41.19         1.0276       229.56       2384.38        2544.97          331.80             95            5.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.8068         1.1922            1.7240          -15.7827         41.19         1.0276       229.56       2384.38        2544.97          331.80             95            5.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.7648         1.2063            1.8373          -43.6266         46.53         1.0246       532.93        858.54        -665.67          522.10             46           10.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.7648         1.2063            1.8373          -43.6266         46.53         1.0246       532.93        858.54        -665.67          522.10             46           10.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.7648         1.2063            1.8373          -43.6266         46.53         1.0246       532.93        858.54        -665.67          522.10             46           10.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        0.7648         1.2063            1.8373          -43.6266         46.53         1.0246       532.93        858.54        -665.67          522.10             46           10.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.6359         0.9404            1.1954          -15.8156         37.23         1.0225       171.52       2238.64        2860.55          462.39            126            4.0
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5        0.6238         1.0016            0.8160          -40.9018         45.74         1.0200       438.88       2195.48        -191.04          836.50             45           11.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5        0.6238         1.0016            0.8160          -40.9018         45.74         1.0200       438.88       2195.48        -191.04          836.50             45           11.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.5901         0.8734            1.0706          -15.8156         37.23         1.0208       159.19       2238.64        2906.44          460.07            125            4.0
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.5901         0.8734            1.0706          -15.8156         37.23         1.0208       159.19       2238.64        2906.44          460.07            125            4.0
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.5901         0.8734            1.0706          -15.8156         37.23         1.0208       159.19       2238.64        2906.44          460.07            125            4.0
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.5699         0.8993            0.4669          -44.0964         46.53         1.0183       396.73        803.94        -720.27          658.30             46           10.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.5699         0.8993            0.4669          -44.0964         46.53         1.0183       396.73        803.94        -720.27          658.30             46           10.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.5699         0.8993            0.4669          -44.0964         46.53         1.0183       396.73        803.94        -720.27          658.30             46           10.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.5699         0.8993            0.4669          -44.0964         46.53         1.0183       396.73        803.94        -720.27          658.30             46           10.9
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.5377         0.8029            0.9454          -16.1562         40.79         1.0183       151.83       2353.64        2471.41          423.38             97            5.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        0.5027         0.7427            0.8476          -16.1562         41.19         1.0171       143.00       2353.64        2514.20          418.35             95            5.2
+
+── Best Sharpe per Candidate ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        1.8971         2.8405            4.8536          -15.7827         40.79         1.0665       530.62       2347.45        2844.39          344.97            102            4.9
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                            0.5       0.7      0.9
+candidate                                                        
+vwap_dist_sum_imbalance__raw_reversal -1.58125 -1.292509 -1.00388
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                            candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__raw_reversal       2347.45        2844.39       530.62          344.97        1.8971
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+02:21:49 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+02:21:52 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+02:21:57 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+02:21:58 [__main__] INFO:   vwap_dist_sum_imbalance__raw_reversal: 168 combos (flip=False)
+02:22:10 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+02:22:10 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~168
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__raw_reversal] 168 combos in 12.4s | best Sharpe=-1.319 | ret=-0.92% | DD=-2.13%
+
+======================================================================
+DONE: 168 evaluations in 21s (0.4 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 168
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.3193        -0.4611           -0.9171           -2.1296          2.18         0.8419       -88.84         -5.33         -20.07           29.74             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.3193        -0.4611           -0.9171           -2.1296          2.18         0.8419       -88.84         -5.33         -20.07           29.74             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.3193        -0.4611           -0.9171           -2.1296          2.18         0.8419       -88.84         -5.33         -20.07           29.74             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.3193        -0.4611           -0.9171           -2.1296          2.18         0.8419       -88.84         -5.33         -20.07           29.74             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.4339        -0.5013           -0.9940           -2.1964          2.18         0.8298       -96.60         -6.72         -22.56           37.50             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.4339        -0.5013           -0.9940           -2.1964          2.18         0.8298       -96.60         -6.72         -22.56           37.50             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.4339        -0.5013           -0.9940           -2.1964          2.18         0.8298       -96.60         -6.72         -22.56           37.50             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.4339        -0.5013           -0.9940           -2.1964          2.18         0.8298       -96.60         -6.72         -22.56           37.50             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -1.5483        -0.5416           -1.0708           -2.2632          2.18         0.8180      -104.36         -8.11         -25.05           45.26             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -1.5483        -0.5416           -1.0708           -2.2632          2.18         0.8180      -104.36         -8.11         -25.05           45.26             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -1.5483        -0.5416           -1.0708           -2.2632          2.18         0.8180      -104.36         -8.11         -25.05           45.26             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -1.5483        -0.5416           -1.0708           -2.2632          2.18         0.8180      -104.36         -8.11         -25.05           45.26             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.7457        -0.6164           -1.2130           -2.4219          2.18         0.7994      -118.68         -5.33          -5.71           29.74             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.7457        -0.6164           -1.2130           -2.4219          2.18         0.7994      -118.68         -5.33          -5.71           29.74             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.7457        -0.6164           -1.2130           -2.4219          2.18         0.7994      -118.68         -5.33          -5.71           29.74             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.7457        -0.6164           -1.2130           -2.4219          2.18         0.7994      -118.68         -5.33          -5.71           29.74             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.7772        -0.5959           -2.6628           -6.0807          1.78         0.7746      -254.90        -11.50         -11.07           78.20             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.7772        -0.5959           -2.6628           -6.0807          1.78         0.7746      -254.90        -11.50         -11.07           78.20             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.7772        -0.5959           -2.6628           -6.0807          1.78         0.7746      -254.90        -11.50         -11.07           78.20             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.7772        -0.5959           -2.6628           -6.0807          1.78         0.7746      -254.90        -11.50         -11.07           78.20             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.8588        -0.6567           -1.2897           -2.4885          2.18         0.7883      -126.44         -6.72          -8.20           37.50             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.8588        -0.6567           -1.2897           -2.4885          2.18         0.7883      -126.44         -6.72          -8.20           37.50             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.8588        -0.6567           -1.2897           -2.4885          2.18         0.7883      -126.44         -6.72          -8.20           37.50             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.8588        -0.6567           -1.2897           -2.4885          2.18         0.7883      -126.44         -6.72          -8.20           37.50             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.9184        -0.6436           -2.8613           -6.2049          1.78         0.7598      -275.30        -14.50         -18.27           98.60             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.9184        -0.6436           -2.8613           -6.2049          1.78         0.7598      -275.30        -14.50         -18.27           98.60             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.9184        -0.6436           -2.8613           -6.2049          1.78         0.7598      -275.30        -14.50         -18.27           98.60             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.9184        -0.6436           -2.8613           -6.2049          1.78         0.7598      -275.30        -14.50         -18.27           98.60             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -1.9716        -0.6969           -1.3663           -2.5551          2.18         0.7775      -134.20         -8.11         -10.69           45.26             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -1.9716        -0.6969           -1.3663           -2.5551          2.18         0.7775      -134.20         -8.11         -10.69           45.26             15            2.5
+
+── Best Sharpe per Candidate ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.3193        -0.4611           -0.9171           -2.1296          2.18         0.8419       -88.84         -5.33         -20.07           29.74             15            2.5
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                             0.5       0.7     0.9
+candidate                                                        
+vwap_dist_sum_imbalance__raw_reversal -2.652043 -2.541829 -2.4315
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                            candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__raw_reversal         -5.33         -20.07       -88.84           29.74       -1.3193
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+02:25:59 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+02:26:01 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+02:26:04 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+02:26:04 [__main__] INFO:   vwap_dist_sum_imbalance__raw_reversal: 42 combos (flip=False)
+02:26:09 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+02:26:09 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~42
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__raw_reversal] 42 combos in 4.0s | best Sharpe=-1.319 | ret=-0.92% | DD=-2.13%
+
+======================================================================
+DONE: 42 evaluations in 9s (0.2 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 42
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.3193        -0.4611           -0.9171           -2.1296          2.18         0.8419       -88.84         -5.33         -20.07           29.74             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.4339        -0.5013           -0.9940           -2.1964          2.18         0.8298       -96.60         -6.72         -22.56           37.50             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -1.5483        -0.5416           -1.0708           -2.2632          2.18         0.8180      -104.36         -8.11         -25.05           45.26             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.7457        -0.6164           -1.2130           -2.4219          2.18         0.7994      -118.68         -5.33          -5.71           29.74             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.7772        -0.5959           -2.6628           -6.0807          1.78         0.7746      -254.90        -11.50         -11.07           78.20             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.8588        -0.6567           -1.2897           -2.4885          2.18         0.7883      -126.44         -6.72          -8.20           37.50             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -1.9184        -0.6436           -2.8613           -6.2049          1.78         0.7598      -275.30        -14.50         -18.27           98.60             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -1.9716        -0.6969           -1.3663           -2.5551          2.18         0.7775      -134.20         -8.11         -10.69           45.26             15            2.5
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -2.0594        -0.6913           -3.0595           -6.3290          1.78         0.7455      -295.70        -17.50         -25.47          119.00             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.3526        -0.7810           -1.5131           -2.7183          1.98         0.7254      -149.53         -5.33         -16.34           31.31             16            2.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68        -632.80           50.60             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68        -632.80           50.60             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68        -632.80           50.60             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.4794        -0.8236           -1.5935           -2.7887          1.98         0.7137      -157.70         -6.72         -19.04           39.48             16            2.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.5011        -0.9660           -4.1330           -7.1421          2.18         0.7385      -403.18       -334.08        -637.00           63.80             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.5011        -0.9660           -4.1330           -7.1421          2.18         0.7385      -403.18       -334.08        -637.00           63.80             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.5011        -0.9660           -4.1330           -7.1421          2.18         0.7385      -403.18       -334.08        -637.00           63.80             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -2.5853        -1.0001           -4.2591           -7.2422          2.18         0.7314      -416.38       -336.48        -641.20           77.00             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -2.5853        -1.0001           -4.2591           -7.2422          2.18         0.7314      -416.38       -336.48        -641.20           77.00             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -2.5853        -1.0001           -4.2591           -7.2422          2.18         0.7314      -416.38       -336.48        -641.20           77.00             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -2.6060        -0.8661           -1.6739           -2.8590          1.98         0.7022      -165.86         -8.11         -21.73           47.65             16            2.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.6696        -0.9105           -4.0327           -7.4025          1.78         0.6888      -395.62        -11.50         -39.01           78.20             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.6696        -0.9105           -4.0327           -7.4025          1.78         0.6888      -395.62        -11.50         -39.01           78.20             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.6696        -0.9105           -4.0327           -7.4025          1.78         0.6888      -395.62        -11.50         -39.01           78.20             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.8053        -0.9573           -4.2285           -7.5250          1.78         0.6768      -416.02        -14.50         -46.21           98.60             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.8053        -0.9573           -4.2285           -7.5250          1.78         0.6768      -416.02        -14.50         -46.21           98.60             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.8053        -0.9573           -4.2285           -7.5250          1.78         0.6768      -416.02        -14.50         -46.21           98.60             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.8276        -0.9443           -1.7989           -3.0006          1.78         0.6731      -178.62         -5.33         -15.65           33.08             17            2.1
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.9195        -1.0902           -2.0244           -3.2234          2.18         0.7017      -201.07       -144.96        -285.96           21.92             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.9195        -1.0902           -2.0244           -3.2234          2.18         0.7017      -201.07       -144.96        -285.96           21.92             11            3.4
+
+── Best Sharpe per Candidate ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -1.3193        -0.4611           -0.9171           -2.1296          2.18         0.8419       -88.84         -5.33         -20.07           29.74             15            2.5
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                             0.5       0.7     0.9
+candidate                                                        
+vwap_dist_sum_imbalance__raw_reversal -2.652043 -2.541829 -2.4315
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                            candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__raw_reversal         -5.33         -20.07       -88.84           29.74       -1.3193
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+02:27:17 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+02:27:19 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+02:27:21 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+02:27:22 [__main__] INFO:   vwap_dist_sum_imbalance__raw_reversal: 6 combos (flip=False)
+02:27:26 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+02:27:26 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__raw_reversal] 6 combos in 3.4s | best Sharpe=-2.417 | ret=-4.01% | DD=-7.04%
+
+======================================================================
+DONE: 6 evaluations in 8s (0.1 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68        -632.80           50.60             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.5011        -0.9660           -4.1330           -7.1421          2.18         0.7385      -403.18       -334.08        -637.00           63.80             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -2.5853        -1.0001           -4.2591           -7.2422          2.18         0.7314      -416.38       -336.48        -641.20           77.00             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.9195        -1.0902           -2.0244           -3.2234          2.18         0.7017      -201.07       -144.96        -285.96           21.92             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -3.0047        -1.1236           -2.0804           -3.2696          2.18         0.6949      -206.79       -146.12        -287.70           27.64             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -3.0899        -1.1571           -2.1364           -3.3159          2.18         0.6882      -212.51       -147.28        -289.44           33.36             11            3.4
+
+── Best Sharpe per Candidate ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68         -632.8            50.6             11            3.4
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                           0.5     0.7     0.9
+candidate                                                    
+vwap_dist_sum_imbalance__raw_reversal -2.8376 -2.7529 -2.6683
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                            candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__raw_reversal       -331.68         -632.8      -389.98            50.6       -2.4171
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+02:43:38 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+02:43:39 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+02:43:42 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+02:43:42 [__main__] INFO:   vwap_dist_sum_imbalance__raw_reversal: 6 combos (flip=False)
+02:43:46 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+02:43:46 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__raw_reversal] 6 combos in 3.7s | best Sharpe=-2.417 | ret=-4.01% | DD=-7.04%
+
+======================================================================
+DONE: 6 evaluations in 8s (0.1 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68        -632.80           50.60             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.5011        -0.9660           -4.1330           -7.1421          2.18         0.7385      -403.18       -334.08        -637.00           63.80             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -2.5853        -1.0001           -4.2591           -7.2422          2.18         0.7314      -416.38       -336.48        -641.20           77.00             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.9195        -1.0902           -2.0244           -3.2234          2.18         0.7017      -201.07       -144.96        -285.96           21.92             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -3.0047        -1.1236           -2.0804           -3.2696          2.18         0.6949      -206.79       -146.12        -287.70           27.64             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -3.0899        -1.1571           -2.1364           -3.3159          2.18         0.6882      -212.51       -147.28        -289.44           33.36             11            3.4
+
+── Best Sharpe per Candidate ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68         -632.8            50.6             11            3.4
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                           0.5     0.7     0.9
+candidate                                                    
+vwap_dist_sum_imbalance__raw_reversal -2.8376 -2.7529 -2.6683
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                            candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__raw_reversal       -331.68         -632.8      -389.98            50.6       -2.4171
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+02:46:14 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+02:46:17 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+02:46:19 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+02:46:20 [__main__] INFO:   vwap_dist_sum_imbalance__raw_reversal: 6 combos (flip=False)
+02:46:24 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+02:46:24 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__raw_reversal] 6 combos in 3.8s | best Sharpe=-2.417 | ret=-4.01% | DD=-7.04%
+
+======================================================================
+DONE: 6 evaluations in 10s (0.2 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68        -632.80           50.60             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.5011        -0.9660           -4.1330           -7.1421          2.18         0.7385      -403.18       -334.08        -637.00           63.80             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -2.5853        -1.0001           -4.2591           -7.2422          2.18         0.7314      -416.38       -336.48        -641.20           77.00             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.9195        -1.0902           -2.0244           -3.2234          2.18         0.7017      -201.07       -144.96        -285.96           21.92             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -3.0047        -1.1236           -2.0804           -3.2696          2.18         0.6949      -206.79       -146.12        -287.70           27.64             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -3.0899        -1.1571           -2.1364           -3.3159          2.18         0.6882      -212.51       -147.28        -289.44           33.36             11            3.4
+
+── Best Sharpe per Candidate ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68         -632.8            50.6             11            3.4
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                           0.5     0.7     0.9
+candidate                                                    
+vwap_dist_sum_imbalance__raw_reversal -2.8376 -2.7529 -2.6683
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                            candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__raw_reversal       -331.68         -632.8      -389.98            50.6       -2.4171
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:02:25 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:02:26 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:02:29 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:02:30 [__main__] INFO:   vwap_dist_sum_imbalance__raw_reversal: 6 combos (flip=False)
+03:02:33 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:02:33 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__raw_reversal] 6 combos in 3.3s | best Sharpe=-2.417 | ret=-4.01% | DD=-7.04%
+
+======================================================================
+DONE: 6 evaluations in 8s (0.1 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68        -632.80           50.60             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -2.5011        -0.9660           -4.1330           -7.1421          2.18         0.7385      -403.18       -334.08        -637.00           63.80             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -2.5853        -1.0001           -4.2591           -7.2422          2.18         0.7314      -416.38       -336.48        -641.20           77.00             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.9195        -1.0902           -2.0244           -3.2234          2.18         0.7017      -201.07       -144.96        -285.96           21.92             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7       -3.0047        -1.1236           -2.0804           -3.2696          2.18         0.6949      -206.79       -146.12        -287.70           27.64             11            3.4
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5       -3.0899        -1.1571           -2.1364           -3.3159          2.18         0.6882      -212.51       -147.28        -289.44           33.36             11            3.4
+
+── Best Sharpe per Candidate ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9       -2.4171        -0.9321           -4.0066           -7.0418          2.18         0.7457      -389.98       -331.68         -632.8            50.6             11            3.4
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                           0.5     0.7     0.9
+candidate                                                    
+vwap_dist_sum_imbalance__raw_reversal -2.8376 -2.7529 -2.6683
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                            candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__raw_reversal       -331.68         -632.8      -389.98            50.6       -2.4171
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:03:30 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:03:31 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:03:33 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:03:34 [__main__] INFO:   vwap_dist_sum_imbalance__raw_reversal: 6 combos (flip=False)
+03:03:37 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:03:37 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__raw_reversal] 6 combos in 3.0s | best Sharpe=4.253 | ret=12.26% | DD=-8.41%
+
+======================================================================
+DONE: 6 evaluations in 7s (0.1 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        4.2535         6.0954           12.2636           -8.4073         38.42         1.1645      1216.08        640.34         463.59            9.09              4           95.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        4.2452         6.0846           12.2370           -8.4085         38.42         1.1641      1213.71        639.72         462.66           11.47              4           95.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5        4.2370         6.0738           12.2104           -8.4096         38.42         1.1638      1211.34        639.10         461.74           13.84              4           95.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        3.5614         5.2384           22.5613          -22.0963         38.42         1.1339      2348.81       1303.06         803.89           16.10              4           95.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        3.5551         5.2301           22.5100          -22.0963         38.42         1.1337      2344.61       1301.86         802.69           20.30              4           95.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5        3.5488         5.2218           22.4587          -22.0963         38.42         1.1334      2340.41       1300.66         801.49           24.50              4           95.2
+
+── Best Sharpe per Candidate ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        4.2535         6.0954           12.2636           -8.4073         38.42         1.1645      1216.08        640.34         463.59            9.09              4           95.2
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                           0.5      0.7      0.9
+candidate                                                      
+vwap_dist_sum_imbalance__raw_reversal  3.8929  3.90015  3.90745
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                            candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__raw_reversal        640.34         463.59      1216.08            9.09        4.2535
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:08:01 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:08:02 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:08:04 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+Traceback (most recent call last):
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/run_full_backtest_candidates.py", line 480, in <module>
+    main()
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/run_full_backtest_candidates.py", line 449, in main
+    df = run_candidate(c, bars, bar_sec, output_root,
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/run_full_backtest_candidates.py", line 227, in run_candidate
+    factor = compute_factor(candidate.factor, bars, window=candidate.factor_window)
+  File "/Users/quqiancheng/mean_reversion_cta_pm/rule_backtest/data_loader.py", line 659, in compute_factor
+    return FACTOR_REGISTRY[factor_name](bars, **kwargs)
+  File "/Users/quqiancheng/mean_reversion_cta_pm/rule_backtest/data_loader.py", line 507, in _merged_vwap_dist_sum_imbalance
+    b = bars["buy_vwap_dist_sum"].rolling(w, min_periods=max(3, w // 4)).sum()
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/core/generic.py", line 11999, in rolling
+    return Rolling(
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/core/window/rolling.py", line 165, in __init__
+    self._validate()
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/core/window/rolling.py", line 1822, in _validate
+    super()._validate()
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/core/window/rolling.py", line 205, in _validate
+    raise ValueError(
+ValueError: min_periods 3 must be <= window 1
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:09:36 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:09:37 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:09:39 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:09:40 [__main__] INFO:   vwap_dist_sum_imbalance__raw_reversal: 6 combos (flip=False)
+03:09:44 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:09:44 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__raw_reversal] 6 combos in 3.6s | best Sharpe=1.527 | ret=3.75% | DD=-9.01%
+
+======================================================================
+DONE: 6 evaluations in 8s (0.1 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        1.5271         2.0878            3.7511           -9.0067         41.98         1.0526       424.25       -267.48         316.35           16.52              8           52.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        1.5117         2.0670            3.7065           -9.0323         41.98         1.0520       419.94       -268.42         314.69           20.83              8           52.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5        1.4962         2.0463            3.6618           -9.0580         41.98         1.0515       415.63       -269.36         313.03           25.14              8           52.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        1.3324         1.7966            5.8464          -21.1458         41.98         1.0457       900.06       -450.55         466.25           34.50              8           52.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.7        1.3191         1.7792            5.7517          -21.1929         41.98         1.0452       891.06       -452.35         463.25           43.50              8           52.2
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.5        1.3059         1.7618            5.6571          -21.2399         41.98         1.0448       882.06       -454.15         460.25           52.50              8           52.2
+
+── Best Sharpe per Candidate ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw_reversal     1        False              0.9        1.5271         2.0878            3.7511           -9.0067         41.98         1.0526       424.25       -267.48         316.35           16.52              8           52.2
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                            0.5     0.7      0.9
+candidate                                                      
+vwap_dist_sum_imbalance__raw_reversal  1.40105  1.4154  1.42975
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                            candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__raw_reversal       -267.48         316.35       424.25           16.52        1.5271
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+Traceback (most recent call last):
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/run_full_backtest_candidates.py", line 480, in <module>
+    main()
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/run_full_backtest_candidates.py", line 409, in main
+    candidates = define_candidates()
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/run_full_backtest_candidates.py", line 182, in define_candidates
+    signal=RawSignal(dead_zone=0.1),
+NameError: name 'RawSignal' is not defined
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:13:13 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:13:14 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:13:16 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:13:18 [__main__] INFO:   vwap_dist_sum_imbalance__raw: 6 combos (flip=False)
+03:13:21 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:13:21 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [2000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=2000 ──
+  Built 1516 bars (~1391s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__raw/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__raw] 6 combos in 3.4s | best Sharpe=0.745 | ret=1.87% | DD=-20.39%
+
+======================================================================
+DONE: 6 evaluations in 9s (0.1 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                   candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw     1        False              0.9        0.7448         1.1510            1.8730          -20.3922         42.61         1.0136       361.88       1098.37         646.11          159.16             45           30.0
+vwap_dist_sum_imbalance__raw     1        False              0.7        0.6593         1.0196            1.4504          -20.6356         42.61         1.0120       320.36       1086.70         635.28          200.68             45           30.0
+vwap_dist_sum_imbalance__raw     1        False              0.5        0.5737         0.8880            1.0295          -20.8783         42.61         1.0105       278.84       1075.03         624.46          242.20             45           30.0
+vwap_dist_sum_imbalance__raw     1        False              0.9        0.4791         0.7213           -0.2460          -27.4478         42.61         1.0088       330.26       1481.76         888.72          204.70             45           30.0
+vwap_dist_sum_imbalance__raw     1        False              0.7        0.4016         0.6050           -0.7786          -27.7352         42.61         1.0074       276.86       1468.56         874.92          258.10             45           30.0
+vwap_dist_sum_imbalance__raw     1        False              0.5        0.3241         0.4886           -1.3084          -28.0215         42.61         1.0060       223.46       1455.36         861.12          311.50             45           30.0
+
+── Best Sharpe per Candidate ──
+                   candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__raw     1        False              0.9        0.7448          1.151             1.873          -20.3922         42.61         1.0136       361.88       1098.37         646.11          159.16             45           30.0
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                  0.5      0.7      0.9
+candidate                                             
+vwap_dist_sum_imbalance__raw  0.4489  0.53045  0.61195
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                   candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__raw       1098.37         646.11       361.88          159.16        0.7448
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:23:42 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:23:43 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:23:46 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:23:47 [__main__] INFO:   vwap_dist_sum_imbalance__ma1_10: 6 combos (flip=False)
+03:23:51 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:23:51 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [2000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=2000 ──
+  Built 1516 bars (~1391s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__ma1_10/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__ma1_10/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__ma1_10/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/vwap_dist_sum_imbalance__ma1_10/fill0.90/best/price_position_interactive.html
+  [vwap_dist_sum_imbalance__ma1_10] 6 combos in 3.5s | best Sharpe=-0.217 | ret=-4.78% | DD=-25.23%
+
+======================================================================
+DONE: 6 evaluations in 9s (0.1 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                      candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__ma1_10     1        False              0.9       -0.2174        -0.3213           -4.7782          -25.2276         42.55         0.9960      -147.19       4142.95        4502.19         1097.10            239            6.3
+vwap_dist_sum_imbalance__ma1_10     1        False              0.7       -0.6395        -0.9476           -7.4702          -26.4668         42.48         0.9883      -433.39       4070.35        4431.39         1383.30            239            6.3
+vwap_dist_sum_imbalance__ma1_10     1        False              0.5       -1.0609        -1.5762          -10.0862          -27.6856         42.41         0.9807      -719.59       3997.75        4360.59         1669.50            239            6.3
+vwap_dist_sum_imbalance__ma1_10     1        False              0.9       -1.9474        -2.7380          -10.5367          -20.1132         42.28         0.9649      -939.38       2610.50        2957.62          864.95            239            6.3
+vwap_dist_sum_imbalance__ma1_10     1        False              0.7       -2.4130        -3.4008          -12.5355          -21.2076         42.22         0.9568     -1165.02       2550.08        2899.82         1090.58            239            6.3
+vwap_dist_sum_imbalance__ma1_10     1        False              0.5       -2.8779        -4.0653          -14.4898          -22.2870         42.15         0.9487     -1390.65       2489.66        2842.03         1316.22            239            6.3
+
+── Best Sharpe per Candidate ──
+                      candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+vwap_dist_sum_imbalance__ma1_10     1        False              0.9       -0.2174        -0.3213           -4.7782          -25.2276         42.55          0.996      -147.19       4142.95        4502.19          1097.1            239            6.3
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                     0.5      0.7     0.9
+candidate                                               
+vwap_dist_sum_imbalance__ma1_10 -1.9694 -1.52625 -1.0824
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                      candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+vwap_dist_sum_imbalance__ma1_10       4142.95        4502.19      -147.19          1097.1       -0.2174
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:34:52 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:34:56 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:34:58 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:34:59 [__main__] INFO:   off_top_volume_delta_imbalance__raw_reversal: 6 combos (flip=False)
+03:35:03 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:35:03 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [2000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=2000 ──
+  Built 1516 bars (~1391s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [off_top_volume_delta_imbalance__raw_reversal] 6 combos in 3.8s | best Sharpe=0.429 | ret=0.05% | DD=-19.91%
+
+======================================================================
+DONE: 6 evaluations in 11s (0.2 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                                   candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.9        0.4286         0.6071            0.0496          -19.9144         30.87         1.0091       240.83      -7454.33       -5570.69         2776.10            604            2.5
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.7       -0.8616        -1.2228           -6.9335          -23.9801         30.87         0.9820      -483.37      -7639.73       -5747.69         3500.30            604            2.5
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.9       -1.4468        -2.0342           -6.8949          -19.2496         30.54         0.9697      -590.12      -5602.71       -4134.32         2052.36            601            2.5
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.5       -2.1555        -3.0663          -13.4297          -27.8397         30.80         0.9558     -1207.57      -7825.13       -5924.69         4224.50            604            2.5
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.7       -2.7634        -3.8923          -11.7458          -22.3782         30.54         0.9433     -1125.52      -5741.91       -4264.96         2587.75            601            2.5
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.5       -4.0838        -5.7636          -16.3442          -25.3857         30.47         0.9179     -1660.91      -5881.10       -4395.60         3123.15            601            2.5
+
+── Best Sharpe per Candidate ──
+                                   candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.9        0.4286         0.6071            0.0496          -19.9144         30.87         1.0091       240.83      -7454.33       -5570.69          2776.1            604            2.5
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                                   0.5     0.7     0.9
+candidate                                                            
+off_top_volume_delta_imbalance__raw_reversal -3.11965 -1.8125 -0.5091
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                                   candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+off_top_volume_delta_imbalance__raw_reversal      -7454.33       -5570.69       240.83          2776.1        0.4286
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:38:31 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:38:32 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:38:35 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:38:36 [__main__] INFO:   off_top_volume_delta_imbalance__raw_reversal: 6 combos (flip=False)
+03:38:39 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:38:39 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal/fill0.90/best/price_position_interactive.html
+  [off_top_volume_delta_imbalance__raw_reversal] 6 combos in 3.2s | best Sharpe=-3.711 | ret=-8.97% | DD=-13.02%
+
+======================================================================
+DONE: 6 evaluations in 8s (0.1 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                                   candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.9       -3.7113        -4.9062           -8.9736          -13.0192         28.32         0.8645      -897.66      -1593.30       -1734.81          402.75            205            2.4
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.7       -4.1498        -5.4891           -9.9244          -13.3250         28.32         0.8503     -1002.73      -1622.13       -1758.96          507.82            205            2.4
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.5       -4.5892        -6.0790          -10.8653          -14.0029         28.12         0.8364     -1107.79      -1650.97       -1783.11          612.88            205            2.4
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.9       -5.6508        -7.1028          -29.3651          -34.4496         28.51         0.8014     -3235.91      -3911.94       -4123.04          954.50            208            2.4
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.7       -6.0909        -7.6608          -31.1006          -35.4444         28.51         0.7884     -3484.91      -3981.54       -4178.24         1203.50            208            2.4
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.5       -6.5318        -8.2277          -32.7935          -36.5671         28.32         0.7757     -3733.91      -4051.14       -4233.44         1452.50            208            2.4
+
+── Best Sharpe per Candidate ──
+                                   candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__raw_reversal     1        False              0.9       -3.7113        -4.9062           -8.9736          -13.0192         28.32         0.8645      -897.66       -1593.3       -1734.81          402.75            205            2.4
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                                  0.5      0.7      0.9
+candidate                                                             
+off_top_volume_delta_imbalance__raw_reversal -5.5605 -5.12035 -4.68105
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                                   candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+off_top_volume_delta_imbalance__raw_reversal       -1593.3       -1734.81      -897.66          402.75       -3.7113
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:50:39 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:50:42 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:50:45 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:50:45 [__main__] INFO:   off_top_volume_delta_imbalance__ma1_5: 6 combos (flip=False)
+03:50:49 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:50:49 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [6000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=6000 ──
+  Built 505 bars (~4299s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__ma1_5/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__ma1_5/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__ma1_5/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__ma1_5/fill0.90/best/price_position_interactive.html
+  [off_top_volume_delta_imbalance__ma1_5] 6 combos in 3.3s | best Sharpe=1.158 | ret=4.38% | DD=-28.94%
+
+======================================================================
+DONE: 6 evaluations in 10s (0.2 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__ma1_5     1        False              0.9        1.1583         1.7439            4.3826          -28.9429         29.50         1.0455       670.90       2901.47        2530.96          913.10            199            2.5
+off_top_volume_delta_imbalance__ma1_5     1        False              0.7        0.7465         1.1261            1.9221          -29.9656         29.31         1.0289       432.70       2849.27        2463.76         1151.30            199            2.5
+off_top_volume_delta_imbalance__ma1_5     1        False              0.5        0.3353         0.5064           -0.4805          -30.9736         29.31         1.0128       194.50       2797.07        2396.56         1389.50            199            2.5
+off_top_volume_delta_imbalance__ma1_5     1        False              0.9       -0.2018        -0.2863           -0.9201          -14.2521         29.31         0.9923       -49.26       1243.06         996.14          385.63            197            2.5
+off_top_volume_delta_imbalance__ma1_5     1        False              0.7       -0.6133        -0.8717           -1.9126          -14.7567         29.11         0.9768      -149.86       1220.03         968.40          486.23            197            2.5
+off_top_volume_delta_imbalance__ma1_5     1        False              0.5       -1.0241        -1.4569           -2.8952          -15.2585         29.11         0.9617      -250.46       1197.00         940.67          586.84            197            2.5
+
+── Best Sharpe per Candidate ──
+                            candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__ma1_5     1        False              0.9        1.1583         1.7439            4.3826          -28.9429          29.5         1.0455        670.9       2901.47        2530.96           913.1            199            2.5
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                           0.5     0.7      0.9
+candidate                                                     
+off_top_volume_delta_imbalance__ma1_5 -0.3444  0.0666  0.47825
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                            candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+off_top_volume_delta_imbalance__ma1_5       2901.47        2530.96        670.9           913.1        1.1583
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:53:07 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:53:09 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:53:12 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:53:23 [__main__] INFO:   off_top_volume_delta_imbalance__ma1_5_tps150: 6 combos (flip=False)
+03:53:32 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:53:32 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [150]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=150 ──
+  Built 20217 bars (~93s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__ma1_5_tps150/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__ma1_5_tps150/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__ma1_5_tps150/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__ma1_5_tps150/fill0.90/best/price_position_interactive.html
+  [off_top_volume_delta_imbalance__ma1_5_tps150] 6 combos in 8.7s | best Sharpe=-67.036 | ret=-97.75% | DD=-97.76%
+
+======================================================================
+DONE: 6 evaluations in 25s (0.4 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                                   candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__ma1_5_tps150     1        False              0.9      -67.0362       -93.6916          -97.7476          -97.7572         30.41         0.7085    -37663.38       2281.35        3263.56        32607.10           7089            2.9
+off_top_volume_delta_imbalance__ma1_5_tps150     1        False              0.9      -70.0833       -98.6514          -99.9958          -99.9958         30.29         0.7022    -99074.33       4131.67        7983.45        85738.88           7088            2.9
+off_top_volume_delta_imbalance__ma1_5_tps150     1        False              0.7      -81.8579      -115.4062          -99.0383          -99.0408         29.87         0.6610    -46169.58        126.15        1165.36        41113.30           7089            2.9
+off_top_volume_delta_imbalance__ma1_5_tps150     1        False              0.7      -85.5514      -121.4602          -99.9996          -99.9996         29.74         0.6540   -121441.00      -1556.75        2421.36       108105.54           7088            2.9
+off_top_volume_delta_imbalance__ma1_5_tps150     1        False              0.5      -96.5393      -137.1693          -99.5894          -99.5903         29.54         0.6181    -54675.78      -2029.05        -932.84        49619.50           7089            2.9
+off_top_volume_delta_imbalance__ma1_5_tps150     1        False              0.5     -100.8618      -144.2963         -100.0000         -100.0000         29.42         0.6106   -143807.66      -7245.16       -3140.72       130472.21           7088            2.9
+
+── Best Sharpe per Candidate ──
+                                   candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__ma1_5_tps150     1        False              0.9      -67.0362       -93.6916          -97.7476          -97.7572         30.41         0.7085    -37663.38       2281.35        3263.56         32607.1           7089            2.9
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                                    0.5       0.7       0.9
+candidate                                                                 
+off_top_volume_delta_imbalance__ma1_5_tps150 -98.70055 -83.70465 -68.55975
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                                   candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+off_top_volume_delta_imbalance__ma1_5_tps150       2281.35        3263.56    -37663.38         32607.1      -67.0362
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:56:22 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:56:23 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:56:25 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:56:38 [__main__] INFO:   off_top_volume_delta_imbalance__raw_reversal_tps150: 6 combos (flip=False)
+03:56:47 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:56:47 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [150]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=150 ──
+  Built 20217 bars (~93s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal_tps150/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal_tps150/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal_tps150/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal_tps150/fill0.90/best/price_position_interactive.html
+  [off_top_volume_delta_imbalance__raw_reversal_tps150] 6 combos in 9.6s | best Sharpe=-74.005 | ret=-97.99% | DD=-98.01%
+
+======================================================================
+DONE: 6 evaluations in 26s (0.4 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                                          candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__raw_reversal_tps150     1        False              0.9      -74.0051      -104.0497          -97.9905          -98.0113         27.30         0.6752    -38838.18     -26900.01      -26469.30        38076.50           8278            2.4
+off_top_volume_delta_imbalance__raw_reversal_tps150     1        False              0.9      -76.3449      -109.4699          -99.9961          -99.9962         27.20         0.6733   -100002.48     -69639.30      -67404.25       100105.02           8276            2.4
+off_top_volume_delta_imbalance__raw_reversal_tps150     1        False              0.7      -93.2524      -132.0985          -99.2558          -99.2620         26.55         0.6157    -48771.18     -29430.81      -28905.30        48009.50           8278            2.4
+off_top_volume_delta_imbalance__raw_reversal_tps150     1        False              0.7      -96.6156      -139.5681          -99.9997          -99.9997         26.45         0.6124   -126116.83     -76326.82      -73820.08       126219.38           8276            2.4
+off_top_volume_delta_imbalance__raw_reversal_tps150     1        False              0.5     -112.6075      -160.5153          -99.7244          -99.7261         26.09         0.5629    -58704.18     -31961.61      -31341.30        57942.50           8278            2.4
+off_top_volume_delta_imbalance__raw_reversal_tps150     1        False              0.5     -116.9951      -170.0529         -100.0000         -100.0000         25.99         0.5585   -152231.18     -83014.34      -80235.92       152333.73           8276            2.4
+
+── Best Sharpe per Candidate ──
+                                          candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__raw_reversal_tps150     1        False              0.9      -74.0051      -104.0497          -97.9905          -98.0113          27.3         0.6752    -38838.18     -26900.01       -26469.3         38076.5           8278            2.4
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                                           0.5     0.7     0.9
+candidate                                                                    
+off_top_volume_delta_imbalance__raw_reversal_tps150 -114.8013 -94.934 -75.175
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                                          candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+off_top_volume_delta_imbalance__raw_reversal_tps150     -26900.01       -26469.3    -38838.18         38076.5      -74.0051
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+03:59:39 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+03:59:41 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+03:59:43 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+03:59:47 [__main__] INFO:   off_top_volume_delta_imbalance__raw_reversal_tps500: 6 combos (flip=False)
+03:59:52 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+03:59:52 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [500]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~6
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=500 ──
+  Built 6065 bars (~330s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal_tps500/fill0.90/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal_tps500/fill0.90/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal_tps500/fill0.90/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__raw_reversal_tps500/fill0.90/best/price_position_interactive.html
+  [off_top_volume_delta_imbalance__raw_reversal_tps500] 6 combos in 4.4s | best Sharpe=-25.865 | ret=-76.81% | DD=-76.88%
+
+======================================================================
+DONE: 6 evaluations in 12s (0.2 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 6
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                                          candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__raw_reversal_tps500     1        False              0.9      -25.8646       -35.6741          -76.8122          -76.8756         27.96         0.7644    -14370.50     -14545.83      -12656.40        11385.00           2475            2.5
+off_top_volume_delta_imbalance__raw_reversal_tps500     1        False              0.9      -27.2400       -37.3291          -88.8331          -88.8331         27.83         0.7561    -21430.39     -21116.50      -18232.85        16842.33           2473            2.4
+off_top_volume_delta_imbalance__raw_reversal_tps500     1        False              0.7      -31.2820       -43.3448          -82.7699          -82.8139         27.54         0.7255    -17340.50     -15316.83      -13370.40        14355.00           2475            2.5
+off_top_volume_delta_imbalance__raw_reversal_tps500     1        False              0.7      -32.8990       -45.2750          -92.8033          -92.8033         27.40         0.7164    -25824.04     -22265.65      -19293.94        21235.98           2473            2.4
+off_top_volume_delta_imbalance__raw_reversal_tps500     1        False              0.5      -36.7220       -51.0806          -87.1971          -87.2275         27.27         0.6891    -20310.50     -16087.83      -14084.40        17325.00           2475            2.5
+off_top_volume_delta_imbalance__raw_reversal_tps500     1        False              0.5      -38.5804       -53.2804          -95.3621          -95.3621         27.14         0.6795    -30217.70     -23414.79      -20355.03        25629.63           2473            2.4
+
+── Best Sharpe per Candidate ──
+                                          candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__raw_reversal_tps500     1        False              0.9      -25.8646       -35.6741          -76.8122          -76.8756         27.96         0.7644     -14370.5     -14545.83       -12656.4         11385.0           2475            2.5
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                                          0.5      0.7      0.9
+candidate                                                                     
+off_top_volume_delta_imbalance__raw_reversal_tps500 -37.6512 -32.0905 -26.5523
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                                          candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+off_top_volume_delta_imbalance__raw_reversal_tps500     -14545.83       -12656.4     -14370.5         11385.0      -25.8646
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Volumes/Lexar/mean_reversion_data
+  Cache:     /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+  Output:    /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Found 30 cached files, skipping fetch.
+
+── Phase 2: Full Rule Backtest ──
+  14 candidates (Tier 1 + Tier 2)
+  3 maker_fill_rates × multiple stop/exit/sizer combos
+
+04:07:53 [rule_backtest.data_loader] INFO: Loading 30 cached files from /Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp
+04:07:54 [rule_backtest.data_loader] INFO: Loaded 4085702 trades, 2026-02-02 16:00:01.690000+00:00 → 2026-03-04 15:59:58.998000+00:00
+04:07:56 [rule_backtest.data_loader] INFO: Merged 4085702 aggTrades → 3032559 taker orders (25.8% reduction, 673003 multi-fill groups)
+04:07:58 [__main__] INFO:   off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold: 168 combos (flip=False)
+04:08:10 [__main__] INFO: Summary → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+04:08:10 [__main__] INFO: Combined CSV → /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+
+======================================================================
+Full Rule Backtest — SOL/USDC
+  Candidates: 1
+  TPB levels: [2000]
+  Fill rates: [0.5, 0.7, 0.9]
+  Est. combos: ~168
+  Output: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC
+======================================================================
+
+
+── Loading merged bars: tpb=2000 ──
+  Built 1516 bars (~1391s avg)
+[Report] Chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold/fill0.50/best/backtest_report.png
+[Report] Metrics saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold/fill0.50/best/backtest_metrics.txt
+[Report] Trades CSV saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold/fill0.50/best/trades.csv
+[Report] Interactive chart saved to /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold/fill0.50/best/price_position_interactive.html
+  [off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold] 168 combos in 12.4s | best Sharpe=0.000 | ret=0.00% | DD=0.00%
+
+======================================================================
+DONE: 168 evaluations in 17s (0.3 min)
+Results: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_combined.csv
+Summary: /Volumes/Lexar/mean_reversion_data/full_backtest_results/SOL_USDC/full_backtest_summary.txt
+======================================================================
+
+── Results ──
+====================================================================================================
+FULL BACKTEST SUMMARY — ALL CANDIDATES
+====================================================================================================
+Total evaluations: 168
+Candidates: 1
+
+── Top 30 by Sharpe Ratio ──
+                                                 candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.5           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.5           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.9           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.7           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+
+── Best Sharpe per Candidate ──
+                                                 candidate  tier  signal_flip  maker_fill_rate  sharpe_ratio  sortino_ratio  total_return_pct  max_drawdown_pct  win_rate_pct  profit_factor  net_pnl_bps  long_pnl_bps  short_pnl_bps  total_cost_bps  n_round_trips  avg_hold_bars
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold     1        False              0.5           0.0            0.0               0.0               0.0           0.0            0.0          0.0           0.0            0.0             0.0              0              0
+
+── Maker Fill Rate Sensitivity (mean Sharpe per candidate × fill_rate) ──
+maker_fill_rate                                             0.5  0.7  0.9
+candidate                                                                
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold  0.0  0.0  0.0
+
+── Long vs Short PnL (best Sharpe per candidate) ──
+                                                 candidate  long_pnl_bps  short_pnl_bps  net_pnl_bps  total_cost_bps  sharpe_ratio
+off_top_volume_delta_imbalance__zscore5_2_tps2000_flathold           0.0            0.0          0.0             0.0           0.0
+====================================================================================================
+═══════════════════════════════════════════════════════
+Done.
+═══════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════
+Full Rule-Backtest Pipeline
+  Symbol:    SOL/USDC
+  Days:      30
+  Data root: /Users/quqiancheng/mean_reversion_cta_pm/data
+  Cache:     /Users/quqiancheng/mean_reversion_cta_pm/data/cache/SOL_USDC/trades_perp
+  Output:    /Users/quqiancheng/mean_reversion_cta_pm/data/full_backtest_results/SOL_USDC
+═══════════════════════════════════════════════════════
+  Only 0 cached files found (need ~30 for 30 days). Fetching...
+
+── Phase 1: Fetching 30 days of aggTrades ──
+  Estimated time: ~40-60 minutes (REST API)
+
+14:29:19 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-04...
+14:33:14 [utilities.binance_loader] INFO:   Fetched 233644 perp aggTrades for 2026-02-04
+14:33:16 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-05...
+Fetching 30 days of SOL/USDC perpetual aggTrades...
+Estimated time: ~60-90 minutes
+
+Traceback (most recent call last):
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/fetch_perpetual_trades.py", line 54, in <module>
+    main()
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/fetch_perpetual_trades.py", line 42, in main
+    df = load_agg_trades_perpetual(symbol=args.symbol, days=args.days)
+  File "/Users/quqiancheng/mean_reversion_cta_pm/utilities/binance_loader.py", line 262, in load_agg_trades_perpetual
+    df = _fetch_agg_trades_perpetual_day(
+  File "/Users/quqiancheng/mean_reversion_cta_pm/utilities/binance_loader.py", line 318, in _fetch_agg_trades_perpetual_day
+    batch = exchange.fapiPublicGetAggTrades({
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/ccxt/base/types.py", line 35, in unbound_method
+    return _self.request(self.path, self.api, self.method, params, config=self.config)
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/ccxt/binance.py", line 11586, in request
+    response = self.fetch2(path, api, method, params, headers, body, config)
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/ccxt/base/exchange.py", line 5023, in fetch2
+    self.throttle(cost)
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/ccxt/base/exchange.py", line 498, in throttle
+    time.sleep(delay / 1000.0)
+KeyboardInterrupt

@@ -93,7 +93,7 @@ def compute_tick_stats(
     p_mean = g["price"].mean()
     tf["tick_range_per_trade"] = p_range / (p_count + 1e-10) / (p_mean + 1e-10) * 10000
 
-    # ── Count ──
+    # ── Count (number of agg trades at same price level) ──
     tf["tick_n_agg"] = g["price"].count()
 
     # ── Rolling aggregations ──

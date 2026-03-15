@@ -12,11 +12,12 @@
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from datetime import date
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "data"
+DATA = Path(os.environ.get("MR_DATA_ROOT", str(ROOT / "data")))
 
 
 class DataPaths:
@@ -27,8 +28,9 @@ class DataPaths:
 
     # ── Cache ──
     @staticmethod
-    def cache_trades(symbol: str, dt: date) -> Path:
-        p = DATA / "cache" / symbol.replace("/", "_") / "trades"
+    def cache_trades(symbol: str, dt: date, perpetual: bool = False) -> Path:
+        subdir = "trades_perp" if perpetual else "trades"
+        p = DATA / "cache" / symbol.replace("/", "_") / subdir
         p.mkdir(parents=True, exist_ok=True)
         return p / f"{dt.isoformat()}.parquet"
 

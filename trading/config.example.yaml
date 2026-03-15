@@ -1,0 +1,20 @@
+# Binance Perpetual Trading Config
+# Copy to config.yaml and fill in your keys
+
+# demo: use testnet.binancefuture.com (Futures testnet)
+# live: use fapi.binance.com
+env: demo
+
+# Get testnet keys from: https://testnet.binancefuture.com
+# Get live keys from: https://www.binance.com/en/my/settings/api-management
+api_key: ""
+api_secret: ""
+
+symbol: SOL/USDT
+
+# Fee structure (Binance USDT-M typical)
+maker_fee_bps: -2.0   # rebate
+taker_fee_bps: 4.0
+
+# Maker-first: wait sec before switching to market
+maker_timeout_sec: 5.0

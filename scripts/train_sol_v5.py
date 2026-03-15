@@ -36,7 +36,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from utilities.binance_loader import load_agg_trades, resample_trades_to_ohlcv
+from utilities.binance_loader import load_agg_trades, load_agg_trades_perpetual, resample_trades_to_ohlcv
 from utilities.paths import DataPaths
 
 logging.basicConfig(
@@ -312,7 +312,7 @@ def load_features_v5(symbol: str, dates: List[str]) -> pd.DataFrame:
     all_dfs = []
     for d_str in dates:
         dt = date.fromisoformat(d_str)
-        cache_path = DataPaths.features(symbol, "1s_features_v5", dt)
+        cache_path = DataPaths.features(symbol, "1s_features_v5_perp", dt)
         if cache_path.exists():
             logger.info(f"  [Cache] {d_str}")
             all_dfs.append(pd.read_parquet(cache_path))
@@ -505,9 +505,14 @@ def backtest_fixed_interval(signal, actual_return, timestamps, cost_bps=4.0, thr
     return pd.DataFrame(trades)
 
 
-def compute_metrics(df):
+def compute_metrics(df, interval_sec: int = 300):
+    """Compute backtest metrics including investment-style metrics."""
     if df.empty or len(df) < 2:
-        return {"n_trades": 0, "total_pnl": 0, "sharpe": 0, "win_rate": 0, "profit_factor": 0}
+        return {
+            "n_trades": 0, "total_pnl": 0, "sharpe": 0, "win_rate": 0, "profit_factor": 0,
+            "total_return_pct": 0, "annualized_return_pct": 0, "max_drawdown_pct": 0,
+            "sortino": 0, "calmar": 0,
+        }
     active = df[df["position"] != 0]
     n_trades = int((df["position"].diff().fillna(0) != 0).sum())
     pnl = df["net_pnl"]
@@ -516,9 +521,28 @@ def compute_metrics(df):
     pos_pnl = pnl[pnl > 0].sum()
     neg_pnl = pnl[pnl < 0].abs().sum() + 1e-10
     dd = (df["cum_pnl"] - df["cum_pnl"].cummax()).min()
-    return {"n_trades": n_trades, "n_active": len(active), "total_pnl": float(pnl.sum()),
-            "gross_pnl": float(df["gross_pnl"].sum()), "sharpe": float(sr),
-            "win_rate": float(wr), "profit_factor": float(pos_pnl / neg_pnl), "max_dd": float(dd)}
+
+    # Investment-style metrics
+    returns_pct = pnl / 10000.0
+    cum_ret = (1 + returns_pct).cumprod()
+    total_return_pct = (cum_ret.iloc[-1] - 1) * 100
+    periods_per_year = 365 * 24 * 3600 / interval_sec
+    years = len(pnl) / periods_per_year
+    ann_return_pct = (cum_ret.iloc[-1] ** (1 / years) - 1) * 100 if years > 0 else 0
+    peak = cum_ret.cummax()
+    drawdown_pct = ((cum_ret - peak) / peak).min() * 100
+    downside = returns_pct[returns_pct < 0]
+    down_std = downside.std() if len(downside) > 1 else 1e-12
+    sortino = returns_pct.mean() / down_std * np.sqrt(periods_per_year) if down_std > 0 else 0
+    calmar = ann_return_pct / abs(drawdown_pct) if drawdown_pct != 0 else 0
+
+    return {
+        "n_trades": n_trades, "n_active": len(active), "total_pnl": float(pnl.sum()),
+        "gross_pnl": float(df["gross_pnl"].sum()), "sharpe": float(sr),
+        "win_rate": float(wr), "profit_factor": float(pos_pnl / neg_pnl), "max_dd": float(dd),
+        "total_return_pct": float(total_return_pct), "annualized_return_pct": float(ann_return_pct),
+        "max_drawdown_pct": float(drawdown_pct), "sortino": float(sortino), "calmar": float(calmar),
+    }
 
 
 # ═══════════════════════════════════════════════════════════
@@ -705,8 +729,8 @@ def main():
 
     # ── Load features ──
     logger.info("\n[1] Loading V5 features (full indicators library)...")
-    train_1s = load_features_v5(args.symbol, TRAIN_DATES)
-    test_1s = load_features_v5(args.symbol, TEST_DATES)
+    train_1s = load_features_v5_perpetual(args.symbol, TRAIN_DATES)
+    test_1s = load_features_v5_perpetual(args.symbol, TEST_DATES)
     if train_1s.empty or test_1s.empty:
         logger.error("Failed to load features!"); return
 

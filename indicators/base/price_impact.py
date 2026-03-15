@@ -1,6 +1,9 @@
 """
 Price Impact 指标。
 
+# TODO:
+这是基于 takerID 合并后的 taker trades 指标，而非基于 raw trades
+
 原理：衡量单位成交量对价格的推动力度。
   - tick_price_impact: |ΔPrice| / Volume，在滚动窗口内计算
   - volume_weighted_impact: 成交量加权的价格冲击
@@ -58,6 +61,10 @@ def volume_weighted_impact(
     result = weighted / total_vol
     result.name = "vw_impact"
     return result
+
+# TODO: vwap - starting price
+
+# TODO: vwap dist orthogonised w volume 
 
 
 def kyles_lambda(

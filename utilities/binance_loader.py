@@ -33,12 +33,24 @@ except ImportError:
 
 
 _exchange_cache = {}
+_perpetual_cache = {}
 
 
-def _get_exchange(api_key: str = "", api_secret: str = ""):
+def _get_exchange(api_key: str = "", api_secret: str = "", perpetual: bool = False):
     if ccxt is None:
         raise ImportError("pip install ccxt")
     key = (api_key, api_secret)
+    if perpetual:
+        if key not in _perpetual_cache:
+            ex = ccxt.binanceusdm({
+                "apiKey": api_key or None,
+                "secret": api_secret or None,
+                "enableRateLimit": True,
+                "options": {"defaultType": "future"},
+            })
+            ex.load_markets()
+            _perpetual_cache[key] = ex
+        return _perpetual_cache[key]
     if key not in _exchange_cache:
         ex = ccxt.binance({
             "apiKey": api_key or None,
@@ -55,7 +67,7 @@ def _get_exchange(api_key: str = "", api_secret: str = ""):
 # ─────────────────────────────────────────────────────────
 
 def load_agg_trades(
-    symbol: str = "SOL/USDT",
+    symbol: str = "SOL/USDC",
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
     days: int = 3,
@@ -66,7 +78,7 @@ def load_agg_trades(
     加载 Binance aggTrades，按天缓存。
 
     返回 DataFrame 列:
-        timestamp, price, amount, side, cost,
+        timestamp, price, volume, side, value,
         agg_trade_id, first_trade_id, last_trade_id, n_trades_in_agg
 
     n_trades_in_agg = last_trade_id - first_trade_id + 1
@@ -202,9 +214,9 @@ def _parse_agg_trade(r: dict) -> dict:
     return {
         "timestamp": pd.Timestamp(int(r["T"]), unit="ms", tz="UTC"),
         "price": float(r["p"]),
-        "amount": float(r["q"]),
+        "volume": float(r["q"]),
         "side": "sell" if r["m"] else "buy",
-        "cost": float(r["p"]) * float(r["q"]),
+        "value": float(r["p"]) * float(r["q"]),
         "agg_trade_id": int(r["a"]),
         "first_trade_id": int(r["f"]),
         "last_trade_id": int(r["l"]),
@@ -213,11 +225,140 @@ def _parse_agg_trade(r: dict) -> dict:
 
 
 # ─────────────────────────────────────────────────────────
+# Perpetual aggTrades (Binance USDT-M Futures)
+# ─────────────────────────────────────────────────────────
+
+def load_agg_trades_perpetual(
+    symbol: str = "SOL/USDC",
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+    days: int = 3,
+    api_key: str = "",
+    api_secret: str = "",
+) -> pd.DataFrame:
+    """
+    加载 Binance USDT-M Perpetual aggTrades，按天缓存。
+
+    与 load_agg_trades 返回格式相同，数据来自 fapi (Futures API)。
+    demo=True 使用 testnet.binancefuture.com
+    """
+    if end_date is None:
+        end_date = date.today()
+    if start_date is None:
+        start_date = end_date - timedelta(days=days)
+
+    all_dfs = []
+    current = start_date
+
+    while current < end_date:
+        cache_path = DataPaths.cache_trades(symbol, current, perpetual=True)
+
+        if cache_path.exists():
+            logger.info(f"[Cache hit] {symbol} perp trades {current}")
+            df = pd.read_parquet(cache_path)
+            all_dfs.append(df)
+        else:
+            logger.info(f"[Fetching] {symbol} perp aggTrades {current}...")
+            df = _fetch_agg_trades_perpetual_day(
+                symbol, current, api_key, api_secret
+            )
+            if not df.empty:
+                df.to_parquet(cache_path, index=False)
+                all_dfs.append(df)
+
+        current += timedelta(days=1)
+
+    if not all_dfs:
+        return pd.DataFrame()
+
+    result = pd.concat(all_dfs, ignore_index=True)
+    result["timestamp"] = pd.to_datetime(result["timestamp"], utc=True)
+    return result.sort_values("timestamp").reset_index(drop=True)
+
+
+def _fetch_agg_trades_perpetual_day(
+    symbol: str, dt: date,
+    api_key: str = "", api_secret: str = "",
+) -> pd.DataFrame:
+    """获取单天 Perpetual aggTrades (fapi)."""
+    exchange = _get_exchange(api_key, api_secret, perpetual=True)
+    market = exchange.market(symbol)
+    binance_symbol = market["id"]
+
+    start_ms = int(datetime.combine(dt, datetime.min.time()).timestamp() * 1000)
+    end_ms = start_ms + 86400_000
+
+    all_records = []
+    n_requests = 0
+
+    try:
+        first_batch = exchange.fapiPublicGetAggTrades({
+            "symbol": binance_symbol,
+            "startTime": start_ms,
+            "limit": 1000,
+        })
+        n_requests += 1
+    except Exception as e:
+        logger.warning("Error fetching perp first batch: %s", e)
+        return pd.DataFrame()
+
+    if not first_batch:
+        return pd.DataFrame()
+
+    for r in first_batch:
+        ts = int(r["T"])
+        if ts >= end_ms:
+            break
+        all_records.append(_parse_agg_trade(r))
+
+    last_id = int(first_batch[-1]["a"])
+
+    while True:
+        try:
+            batch = exchange.fapiPublicGetAggTrades({
+                "symbol": binance_symbol,
+                "fromId": last_id + 1,
+                "limit": 1000,
+            })
+            n_requests += 1
+        except Exception as e:
+            logger.warning("Error fetching perp aggTrades fromId=%s: %s", last_id + 1, e)
+            time.sleep(1)
+            continue
+
+        if not batch:
+            break
+
+        hit_end = False
+        for r in batch:
+            ts = int(r["T"])
+            if ts >= end_ms:
+                hit_end = True
+                break
+            all_records.append(_parse_agg_trade(r))
+
+        last_id = int(batch[-1]["a"])
+
+        if hit_end or len(batch) < 1000:
+            break
+
+        if n_requests % 10 == 0:
+            time.sleep(0.5)
+
+    logger.info("  Fetched %d perp aggTrades for %s", len(all_records), dt.isoformat())
+
+    if not all_records:
+        return pd.DataFrame()
+
+    return pd.DataFrame(all_records)
+
+
+# ─────────────────────────────────────────────────────────
 # Klines
 # ─────────────────────────────────────────────────────────
 
 def load_klines(
-    symbol: str = "SOL/USDT",
+    symbol: str = "SOL/USDC",
     timeframe: str = "1m",
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
@@ -296,14 +437,15 @@ def resample_trades_to_ohlcv(trades: pd.DataFrame, freq: str = "1min") -> pd.Dat
     ts = trades.set_index("timestamp")
     ts = ts[~ts.index.duplicated(keep="last")]
 
+    vol_col = "volume" if "volume" in ts.columns else "amount"
     ohlcv = ts["price"].resample(freq).ohlc()
-    ohlcv["volume"] = ts["amount"].resample(freq).sum()
+    ohlcv["volume"] = ts[vol_col].resample(freq).sum()
     ohlcv["buy_volume"] = (
-        ts.loc[ts["side"] == "buy", "amount"].resample(freq).sum()
+        ts.loc[ts["side"] == "buy", vol_col].resample(freq).sum()
         .reindex(ohlcv.index).fillna(0)
     )
     ohlcv["sell_volume"] = (
-        ts.loc[ts["side"] == "sell", "amount"].resample(freq).sum()
+        ts.loc[ts["side"] == "sell", vol_col].resample(freq).sum()
         .reindex(ohlcv.index).fillna(0)
     )
     ohlcv["n_trades"] = ts["agg_trade_id"].resample(freq).count() if "agg_trade_id" in ts.columns else 0

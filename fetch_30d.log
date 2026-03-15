@@ -1,0 +1,56 @@
+22:17:52 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-03...
+22:20:05 [utilities.binance_loader] INFO:   Fetched 131774 perp aggTrades for 2026-02-03
+22:20:07 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-04...
+22:24:01 [utilities.binance_loader] INFO:   Fetched 233644 perp aggTrades for 2026-02-04
+22:24:02 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-05...
+22:24:20 [utilities.binance_loader] WARNING: Error fetching perp aggTrades fromId=110938134: binanceusdm GET https://fapi.binance.com/fapi/v1/aggTrades?symbol=SOLUSDC&fromId=110938134&limit=1000
+22:29:45 [utilities.binance_loader] INFO:   Fetched 330177 perp aggTrades for 2026-02-05
+22:29:46 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-06...
+22:38:14 [utilities.binance_loader] INFO:   Fetched 505770 perp aggTrades for 2026-02-06
+22:38:17 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-07...
+22:41:40 [utilities.binance_loader] INFO:   Fetched 202746 perp aggTrades for 2026-02-07
+22:41:41 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-08...
+22:43:44 [utilities.binance_loader] INFO:   Fetched 123805 perp aggTrades for 2026-02-08
+22:43:45 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-09...
+22:46:07 [utilities.binance_loader] INFO:   Fetched 141319 perp aggTrades for 2026-02-09
+22:46:08 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-10...
+22:48:12 [utilities.binance_loader] INFO:   Fetched 123863 perp aggTrades for 2026-02-10
+22:48:12 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-11...
+22:50:27 [utilities.binance_loader] INFO:   Fetched 134437 perp aggTrades for 2026-02-11
+22:50:28 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-12...
+22:52:20 [utilities.binance_loader] INFO:   Fetched 111135 perp aggTrades for 2026-02-12
+22:52:20 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-13...
+22:54:29 [utilities.binance_loader] INFO:   Fetched 127539 perp aggTrades for 2026-02-13
+22:54:29 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-14...
+22:55:48 [utilities.binance_loader] INFO:   Fetched 78220 perp aggTrades for 2026-02-14
+22:55:48 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-15...
+22:57:23 [utilities.binance_loader] INFO:   Fetched 93291 perp aggTrades for 2026-02-15
+22:57:23 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-16...
+22:59:01 [utilities.binance_loader] INFO:   Fetched 97428 perp aggTrades for 2026-02-16
+22:59:01 [utilities.binance_loader] INFO: [Fetching] SOL/USDC perp aggTrades 2026-02-17...
+23:00:42 [utilities.binance_loader] INFO:   Fetched 86599 perp aggTrades for 2026-02-17
+Fetching 30 days of SOL/USDC perpetual aggTrades...
+Estimated time: ~60-90 minutes
+
+Traceback (most recent call last):
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/fetch_perpetual_trades.py", line 54, in <module>
+    main()
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/fetch_perpetual_trades.py", line 42, in main
+    df = load_agg_trades_perpetual(symbol=args.symbol, days=args.days)
+  File "/Users/quqiancheng/mean_reversion_cta_pm/utilities/binance_loader.py", line 266, in load_agg_trades_perpetual
+    df.to_parquet(cache_path, index=False)
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/util/_decorators.py", line 211, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/core/frame.py", line 2976, in to_parquet
+    return to_parquet(
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/io/parquet.py", line 430, in to_parquet
+    impl.write(
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/io/parquet.py", line 176, in write
+    path_or_handle, handles, kwargs["filesystem"] = _get_path_or_handle(
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/io/parquet.py", line 102, in _get_path_or_handle
+    handles = get_handle(
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/io/common.py", line 734, in get_handle
+    check_parent_directory(str(handle))
+  File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/pandas/io/common.py", line 597, in check_parent_directory
+    raise OSError(rf"Cannot save file into a non-existent directory: '{parent}'")
+OSError: Cannot save file into a non-existent directory: '/Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp'
