@@ -4,6 +4,7 @@ Binance USDT-M Perpetual exchange client (demo testnet + live).
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -135,6 +136,111 @@ class BinancePerpetualClient:
     def fetch_order(self, order_id: str, symbol: str) -> Dict[str, Any]:
         """Fetch order status."""
         return self.exchange.fetch_order(order_id, symbol)
+
+    def fetch_agg_trades(
+        self,
+        symbol: str,
+        limit: int = 1000,
+        start_time_ms: Optional[int] = None,
+        end_time_ms: Optional[int] = None,
+        from_id: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Fetch raw Futures aggTrades directly from Binance FAPI.
+
+        Returned dicts are the native Binance payloads:
+          a, p, q, f, l, T, m
+        """
+        params: Dict[str, Any] = {
+            "symbol": self.exchange.market(symbol)["id"],
+            "limit": limit,
+        }
+        if start_time_ms is not None:
+            params["startTime"] = int(start_time_ms)
+        if end_time_ms is not None:
+            params["endTime"] = int(end_time_ms)
+        if from_id is not None:
+            params["fromId"] = int(from_id)
+        return self.exchange.fapiPublicGetAggTrades(params)
+
+    def fetch_historical_agg_trades_range(
+        self,
+        symbol: str,
+        start_time_ms: int,
+        end_time_ms: int,
+        limit: int = 1000,
+        sleep_every_n_requests: int = 10,
+        sleep_seconds: float = 0.5,
+    ) -> List[Dict[str, Any]]:
+        """
+        Fetch all Futures aggTrades in [start_time_ms, end_time_ms).
+
+        Strategy:
+        1. startTime to find the first batch in range
+        2. paginate forward with fromId (much faster than repeated startTime scans)
+        """
+        all_records: List[Dict[str, Any]] = []
+        n_requests = 0
+
+        try:
+            first_batch = self.fetch_agg_trades(
+                symbol=symbol,
+                start_time_ms=start_time_ms,
+                limit=limit,
+            )
+            n_requests += 1
+        except Exception as e:
+            logger.warning("Error fetching first aggTrade batch: %s", e)
+            return []
+
+        if not first_batch:
+            return []
+
+        for record in first_batch:
+            ts = int(record["T"])
+            if ts >= end_time_ms:
+                break
+            all_records.append(record)
+
+        last_id = int(first_batch[-1]["a"])
+
+        while True:
+            try:
+                batch = self.fetch_agg_trades(
+                    symbol=symbol,
+                    from_id=last_id + 1,
+                    limit=limit,
+                )
+                n_requests += 1
+            except Exception as e:
+                logger.warning("Error fetching aggTrades fromId=%s: %s", last_id + 1, e)
+                time.sleep(1.0)
+                continue
+
+            if not batch:
+                break
+
+            hit_end = False
+            for record in batch:
+                ts = int(record["T"])
+                if ts >= end_time_ms:
+                    hit_end = True
+                    break
+                all_records.append(record)
+
+            last_id = int(batch[-1]["a"])
+
+            if hit_end or len(batch) < limit:
+                break
+
+            if sleep_every_n_requests > 0 and n_requests % sleep_every_n_requests == 0:
+                time.sleep(sleep_seconds)
+
+        logger.info(
+            "Fetched %d historical perp aggTrades in %d requests [%s, %s)",
+            len(all_records), n_requests, start_time_ms, end_time_ms,
+        )
+        return all_records
 
     def fetch_order_book_trades(self, symbol: str) -> List[Dict]:
         """Fetch recent trades (for aggTrades-like data)."""

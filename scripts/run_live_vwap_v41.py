@@ -3,7 +3,7 @@
 Live / paper-trade runner for the vwap_dist_sum_v41 strategy.
 
 Best in-sample params:  fw1=8, ema_w1=10, fw2=10, ema_w2=10
-Bar type:               trade_count, tpb=6000 (merged trades)
+Bar type:               trade_count, tpb=500 (merged trades)
 Symbol:                 SOL/USDC perpetual
 
 Usage (paper trade, no API keys):
@@ -27,9 +27,9 @@ import os
 import signal
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -167,6 +167,28 @@ class VwapV41Runner:
         # Telegram notifier (optional — None means notifications disabled)
         self._tg: Optional[TelegramNotifier] = TelegramNotifier.from_env_optional()
 
+        # Observability counters / timestamps
+        self._ws_reconnect_count: int = 0
+        self._msg_count: int = 0
+        self._first_msg_seen: bool = False
+        self._last_msg_ts: Optional[datetime] = None
+        self._last_bar_ts: Optional[datetime] = None
+        self._last_tg_heartbeat_ts: Optional[datetime] = None
+        self._stale_alert_sent: bool = False
+        self._heartbeat_task: Optional[asyncio.Task] = None
+
+        # Warmup acceleration state:
+        # - WS starts immediately and buffers live raw aggTrades
+        # - a background REST loader fetches historical aggTrades to prewarm
+        # - once historical warmup finishes, buffered WS trades are replayed in order
+        self._run_start_ts: Optional[datetime] = None
+        self._warmup_prefill_done: bool = False
+        self._ws_buffer: List[Dict[str, Any]] = []
+        self._buffered_raw_trade_count: int = 0
+        self._historical_raw_trade_count: int = 0
+        self._historical_merged_bar_count: int = 0
+        self._prefill_task: Optional[asyncio.Task] = None
+
     # ─── Live init ───
 
     def _init_live(self) -> None:
@@ -226,6 +248,7 @@ class VwapV41Runner:
         if self.config.is_live:
             self._init_live()
 
+        self._run_start_ts = datetime.now(timezone.utc)
         symbol_ws = self.config.symbol.replace("/", "").lower()
         ws_url = f"{self.config.ws_url}/{symbol_ws}@aggTrade"
 
@@ -249,16 +272,25 @@ class VwapV41Runner:
 
         self._running = True
         self._warmup_notified = False
+        self._heartbeat_task = asyncio.create_task(self._heartbeat_loop())
+        self._prefill_task = asyncio.create_task(self._prefill_warmup_from_rest())
 
         while self._running:
             try:
+                self._ws_reconnect_count += 1
                 async with websockets.connect(
                     ws_url,
                     ping_interval=20,
                     ping_timeout=30,
                     close_timeout=5,
                 ) as ws:
-                    logger.info("WebSocket connected")
+                    logger.info("WebSocket connected (attempt=%d)", self._ws_reconnect_count)
+                    if self._tg:
+                        await self._tg.send(
+                            f"🔌 <b>WebSocket connected</b> "
+                            f"(attempt={self._ws_reconnect_count})\n"
+                            f"<code>{ws_url}</code>"
+                        )
                     async for msg in ws:
                         if not self._running:
                             break
@@ -269,33 +301,234 @@ class VwapV41Runner:
                     await self._tg.send_error("WebSocket", str(e))
                 if self._running:
                     await asyncio.sleep(5)
+        if self._heartbeat_task:
+            self._heartbeat_task.cancel()
+            try:
+                await self._heartbeat_task
+            except asyncio.CancelledError:
+                pass
+        if self._prefill_task:
+            self._prefill_task.cancel()
+            try:
+                await self._prefill_task
+            except asyncio.CancelledError:
+                pass
 
     def _process_message(self, msg: str) -> None:
         try:
             data = json.loads(msg)
             if data.get("e") != "aggTrade":
                 return
+            self._msg_count += 1
+            self._last_msg_ts = datetime.now(timezone.utc)
+            if not self._first_msg_seen:
+                self._first_msg_seen = True
+                logger.info("First aggTrade received; stream is live")
+                if self._tg:
+                    asyncio.get_event_loop().create_task(
+                        self._tg.send("✅ <b>First aggTrade received</b> — market data stream is live.")
+                    )
+            if self._stale_alert_sent:
+                self._stale_alert_sent = False
+                logger.info("Market data stream recovered")
+                if self._tg:
+                    asyncio.get_event_loop().create_task(
+                        self._tg.send("🟢 <b>Market data recovered</b> — aggTrade stream resumed.")
+                    )
             ts = datetime.fromtimestamp(int(data["T"]) / 1000, tz=timezone.utc)
             price = float(data["p"])
             amount = float(data["q"])
             side = "sell" if data["m"] else "buy"
-            self.bar_builder.on_trade(ts, price, amount, side)
+            raw_trade = {
+                "timestamp": ts,
+                "price": price,
+                "volume": amount,
+                "side": side,
+            }
+            if self._warmup_prefill_done:
+                self.bar_builder.on_trade(ts, price, amount, side)
+            else:
+                # Keep buffering live trades until REST prewarm has built the history.
+                self._ws_buffer.append(raw_trade)
+                self._buffered_raw_trade_count += 1
         except Exception as e:
             logger.error("parse error: %s", e)
 
+    async def _prefill_warmup_from_rest(self) -> None:
+        """
+        Accelerate warmup using Binance historical aggTrades via REST in a background thread.
+
+        Design:
+        1. WS starts immediately and buffers fresh raw aggTrades.
+        2. Historical aggTrades older than runner start time are fetched via REST.
+        3. Historical trades are replayed into the same bar builder.
+        4. Buffered WS trades are then replayed in timestamp order and live flow resumes.
+
+        This avoids needing an external DB / queue. We just need:
+        - a chronological cut-off (`self._run_start_ts`)
+        - an in-memory WS buffer during prewarm
+        """
+        if self._run_start_ts is None:
+            return
+
+        # simulate mode may not have a client yet; build a lightweight public client if needed
+        if self._client is None:
+            from trading.binance_perpetual_client import BinancePerpetualClient
+            self._client = BinancePerpetualClient(demo=False)
+
+        target_bars = self.config.warmup_bars
+        target_merged = target_bars * self.config.trades_per_bar
+        # Heuristic from observed SOL/USDC flow on this project:
+        # merged/raw ≈ 0.75-0.85. Use 1.35x raw buffer to improve odds of covering warmup.
+        estimated_raw_needed = int(target_merged * 1.35)
+        estimated_raw_per_hour = 6_000
+        estimated_hours = max(2, min(24, estimated_raw_needed // estimated_raw_per_hour + 2))
+
+        end_ms = int(self._run_start_ts.timestamp() * 1000)
+        start_ms = int((self._run_start_ts - timedelta(hours=estimated_hours)).timestamp() * 1000)
+
+        logger.info(
+            "Starting REST prewarm: target_bars=%d target_merged≈%d estimated_raw≈%d lookback≈%dh",
+            target_bars, target_merged, estimated_raw_needed, estimated_hours,
+        )
+        if self._tg:
+            await self._tg.send(
+                "⏪ <b>REST prewarm started</b>\n"
+                f"target_bars=<code>{target_bars}</code>  "
+                f"target_merged≈<code>{target_merged}</code>\n"
+                f"estimated_raw≈<code>{estimated_raw_needed}</code>  "
+                f"lookback≈<code>{estimated_hours}h</code>"
+            )
+
+        loop = asyncio.get_event_loop()
+        records = await loop.run_in_executor(
+            None,
+            lambda: self._client.fetch_historical_agg_trades_range(
+                symbol=self.config.symbol,
+                start_time_ms=start_ms,
+                end_time_ms=end_ms,
+            ),
+        )
+
+        self._historical_raw_trade_count = len(records)
+        if not records:
+            logger.warning("REST prewarm returned no historical aggTrades; falling back to pure WS warmup")
+            if self._tg:
+                await self._tg.send(
+                    "⚠️ <b>REST prewarm returned no data</b>\n"
+                    "Falling back to pure WebSocket warmup."
+                )
+            self._warmup_prefill_done = True # so that all ws trades will go into bar builder
+            return
+
+        # Replay historical trades in strict time order.
+        for record in records:
+            ts = datetime.fromtimestamp(int(record["T"]) / 1000, tz=timezone.utc)
+            price = float(record["p"])
+            volume = float(record["q"])
+            side = "sell" if record["m"] else "buy"
+            self.bar_builder.on_trade(ts, price, volume, side)
+
+        self._historical_merged_bar_count = self.bar_builder.n_bars
+
+        # Replay buffered websocket trades newer than run start time.
+        self._ws_buffer.sort(key=lambda x: x["timestamp"])
+        replayed = 0
+        for trade in self._ws_buffer:
+            if trade["timestamp"] < self._run_start_ts:
+                continue
+            self.bar_builder.on_trade(
+                trade["timestamp"], trade["price"], trade["volume"], trade["side"]
+            )
+            replayed += 1
+
+        logger.info(
+            "REST prewarm complete | historical_raw=%d historical_bars=%d replayed_ws_raw=%d final_bars=%d",
+            self._historical_raw_trade_count,
+            self._historical_merged_bar_count,
+            replayed,
+            self.bar_builder.n_bars,
+        )
+
+        # reset state and clear buffer before await for _tg
+        # during await, ws协程重新工作，读取tcp缓冲数据
+        # 要保证缓冲区数据直接进入 bar builder
+        self._ws_buffer.clear()
+        self._warmup_prefill_done = True
+
+        if self._tg:
+            await self._tg.send(
+                "✅ <b>REST prewarm complete</b>\n"
+                f"historical_raw=<code>{self._historical_raw_trade_count}</code>\n"
+                f"historical_bars=<code>{self._historical_merged_bar_count}</code>\n"
+                f"replayed_ws_raw=<code>{replayed}</code>\n"
+                f"final_bars=<code>{self.bar_builder.n_bars}</code>"
+            )
+
+        if self.bar_builder.n_bars >= self.config.warmup_bars:
+            logger.info(
+                "Warmup satisfied immediately after REST prefill | bars=%d/%d",
+                self.bar_builder.n_bars,
+                self.config.warmup_bars,
+            )
+            if self._tg and not getattr(self, "_warmup_notified", False):
+                self._warmup_notified = True
+                await self._tg.send(
+                    "🔥 <b>Warmup complete (REST prefill)</b>\n"
+                    f"symbol=<code>{self.config.symbol}</code> bars=<code>{self.bar_builder.n_bars}</code>\n"
+                    f"historical_raw=<code>{self._historical_raw_trade_count}</code> "
+                    f"replayed_ws=<code>{replayed}</code>\n"
+                    f"merged_progress=<code>{self.bar_builder.merged_count_in_current_bar}/"
+                    f"{self.bar_builder.trades_per_bar_target}</code>"
+                )
+
     def _on_bar_close(self, bars_df: pd.DataFrame) -> None:
         self._bar_count += 1
+        self._last_bar_ts = datetime.now(timezone.utc)
+
+        # Historical prefill is still building the bar history. Do not generate
+        # signals / orders until both historical replay and buffered WS replay finish.
+        if not self._warmup_prefill_done:
+            if self._bar_count % 50 == 0:
+                logger.info(
+                    "Prefill: bars=%d/%d | hist_raw=%d buffered_ws=%d | merged_in_bar=%d/%d",
+                    self._bar_count,
+                    self.config.warmup_bars,
+                    self._historical_raw_trade_count,
+                    self._buffered_raw_trade_count,
+                    self.bar_builder.merged_count_in_current_bar,
+                    self.bar_builder.trades_per_bar_target,
+                )
+            return
 
         if self._bar_count < self.config.warmup_bars:
             if self._bar_count % 50 == 0:
-                logger.info("Warmup: %d / %d", self._bar_count, self.config.warmup_bars)
+                logger.info(
+                    "Warmup: %d / %d | raw_trades=%d buffered_ws=%d hist_raw=%d "
+                    "| merged_in_bar=%d/%d",
+                    self._bar_count,
+                    self.config.warmup_bars,
+                    self._msg_count,
+                    self._buffered_raw_trade_count,
+                    self._historical_raw_trade_count,
+                    self.bar_builder.merged_count_in_current_bar,
+                    self.bar_builder.trades_per_bar_target,
+                )
             return
 
         # Notify once when warmup completes
         if self._tg and not getattr(self, "_warmup_notified", False):
             self._warmup_notified = True
             asyncio.get_event_loop().create_task(
-                self._tg.send_warmup_done(self._bar_count, self.config.symbol)
+                self._tg.send(
+                    "🔥 <b>Warmup complete</b>\n"
+                    f"symbol=<code>{self.config.symbol}</code> bars=<code>{self._bar_count}</code>\n"
+                    f"raw_trades=<code>{self._msg_count}</code> "
+                    f"historical_raw=<code>{self._historical_raw_trade_count}</code> "
+                    f"buffered_ws=<code>{self._buffered_raw_trade_count}</code>\n"
+                    f"merged_progress=<code>{self.bar_builder.merged_count_in_current_bar}/"
+                    f"{self.bar_builder.trades_per_bar_target}</code>"
+                )
             )
 
         # Validate required columns
@@ -565,6 +798,86 @@ class VwapV41Runner:
                 f"PnL est={self._cum_pnl_estimated:+.1f} actual={self._cum_pnl_actual:+.1f} bps\n"
                 + (self._fill_stats.summary_line() if self._fill_stats.n_orders > 0 else "")
             )
+
+    async def _heartbeat_loop(self) -> None:
+        """
+        Periodic health reporting:
+        - INFO log every minute
+        - Telegram heartbeat every 5 minutes
+        - Telegram stale-data alert if no aggTrade > 90s
+        """
+        while self._running:
+            await asyncio.sleep(60)
+            now = datetime.now(timezone.utc)
+            since_msg = (
+                (now - self._last_msg_ts).total_seconds()
+                if self._last_msg_ts is not None
+                else None
+            )
+            since_bar = (
+                (now - self._last_bar_ts).total_seconds()
+                if self._last_bar_ts is not None
+                else None
+            )
+
+            logger.info(
+                "HEARTBEAT | raw_trades=%d hist_raw=%d buffered_ws=%d bars=%d trades=%d "
+                "merged_in_bar=%d/%d pos=%+.1f "
+                "pnl_est=%+.1f pnl_actual=%+.1f | last_msg=%s last_bar=%s",
+                self._msg_count,  # raw aggTrade message count
+                self._historical_raw_trade_count,
+                self._buffered_raw_trade_count,
+                self._bar_count,
+                len(self._trade_log),
+                self.bar_builder.merged_count_in_current_bar,
+                self.bar_builder.trades_per_bar_target,
+                self._position,
+                self._cum_pnl_estimated,
+                self._cum_pnl_actual,
+                f"{since_msg:.0f}s" if since_msg is not None else "n/a",
+                f"{since_bar:.0f}s" if since_bar is not None else "n/a",
+            )
+
+            # Data-stale alert: no aggTrade for > 90s
+            if since_msg is not None and since_msg > 90 and not self._stale_alert_sent:
+                self._stale_alert_sent = True
+                if self._tg:
+                    await self._tg.send(
+                        f"🟠 <b>Data stale alert</b>\n"
+                        f"No aggTrade for <code>{since_msg:.0f}s</code>.\n"
+                        f"raw_trades=<code>{self._msg_count}</code> "
+                        f"hist_raw=<code>{self._historical_raw_trade_count}</code> "
+                        f"buffered_ws=<code>{self._buffered_raw_trade_count}</code>\n"
+                        f"bars=<code>{self._bar_count}</code> "
+                        f"merged_progress=<code>{self.bar_builder.merged_count_in_current_bar}/"
+                        f"{self.bar_builder.trades_per_bar_target}</code> "
+                        f"reconnects=<code>{self._ws_reconnect_count}</code>"
+                    )
+
+            # Telegram heartbeat every 5 minutes
+            should_send_hb = (
+                self._tg is not None and
+                (
+                    self._last_tg_heartbeat_ts is None or
+                    now - self._last_tg_heartbeat_ts >= timedelta(minutes=5)
+                )
+            )
+            if should_send_hb:
+                self._last_tg_heartbeat_ts = now
+                await self._tg.send(
+                    "💓 <b>Runner heartbeat</b>\n"
+                    f"raw_trades=<code>{self._msg_count}</code>  "
+                    f"hist_raw=<code>{self._historical_raw_trade_count}</code>  "
+                    f"buffered_ws=<code>{self._buffered_raw_trade_count}</code>\n"
+                    f"bars=<code>{self._bar_count}</code>  "
+                    f"trades=<code>{len(self._trade_log)}</code>\n"
+                    f"merged_progress=<code>{self.bar_builder.merged_count_in_current_bar}/"
+                    f"{self.bar_builder.trades_per_bar_target}</code>\n"
+                    f"pos=<code>{self._position:+.1f}</code>  "
+                    f"pnl_est=<code>{self._cum_pnl_estimated:+.1f}</code>  "
+                    f"pnl_actual=<code>{self._cum_pnl_actual:+.1f}</code>\n"
+                    f"reconnects=<code>{self._ws_reconnect_count}</code>"
+                )
 
     def get_trade_log(self) -> list:
         return self._trade_log

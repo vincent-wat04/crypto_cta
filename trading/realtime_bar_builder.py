@@ -16,7 +16,7 @@ import logging
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Callable, Deque, Dict, List, Optional
+from typing import Callable, Deque, Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -235,6 +235,19 @@ class RealtimeBarBuilder:
     @property
     def n_bars(self) -> int:
         return len(self._history)
+
+    @property
+    def merged_count_in_current_bar(self) -> int:
+        """
+        Number of merged trades accumulated in the currently open trade-count bar.
+        For time bars, this value is informational only.
+        """
+        return self._merged_count_in_bar
+
+    @property
+    def trades_per_bar_target(self) -> int:
+        """Configured trades-per-bar threshold used to close a trade-count bar."""
+        return self.trades_per_bar
 
     def on_trade(self, timestamp: datetime, price: float, amount: float, side: str) -> None:
         """
