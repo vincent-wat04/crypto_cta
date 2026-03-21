@@ -2,9 +2,10 @@
 Real-time bar builder: accumulate FAPI aggTrades into OHLCV bars
 with buy/sell volume decomposition.
 
-Supports two modes:
+Supports three modes:
   - time:        bar closes every `bar_seconds` (wall-clock)
   - trade_count: bar closes every `trades_per_bar` merged taker orders
+  - volume:      bar closes every `volume_per_bar` merged-trade volume
 
 Before counting, incoming aggTrades are streamed through a real-time
 merge filter that combines multi-fill taker orders (same side,
@@ -195,7 +196,7 @@ class StreamingMerger:
 
 
 # ═══════════════════════════════════════════════════════════
-# RealtimeBarBuilder (supports both time and trade-count)
+# RealtimeBarBuilder (supports time / trade-count / volume)
 # ═══════════════════════════════════════════════════════════
 
 class RealtimeBarBuilder:
@@ -205,6 +206,7 @@ class RealtimeBarBuilder:
     Modes:
       - "time":        bar closes every `bar_seconds`
       - "trade_count": bar closes every `trades_per_bar` merged taker orders
+      - "volume":      bar closes every `volume_per_bar` merged-trade volume
 
     Usage:
         builder = RealtimeBarBuilder(mode="trade_count", trades_per_bar=200)
@@ -217,17 +219,25 @@ class RealtimeBarBuilder:
         mode: str = "time",
         bar_seconds: int = 60,
         trades_per_bar: int = 200,
+        volume_per_bar: float = 0.0,
         history_size: int = 500,
     ):
         self.mode = mode
         self.bar_seconds = bar_seconds
         self.trades_per_bar = trades_per_bar
+        self.volume_per_bar = volume_per_bar
         self.history_size = history_size
+
+        if self.mode == "trade_count" and self.trades_per_bar <= 0:
+            raise ValueError(f"trades_per_bar must be positive, got {self.trades_per_bar}")
+        if self.mode == "volume" and self.volume_per_bar <= 0:
+            raise ValueError(f"volume_per_bar must be positive, got {self.volume_per_bar}")
 
         self._merger = StreamingMerger()
         self._current_bar: Optional[Bar] = None
         self._current_bar_epoch: int = 0
         self._merged_count_in_bar: int = 0
+        self._volume_in_bar: float = 0.0
         self._history: Deque[Dict] = deque(maxlen=history_size)
 
         self.on_bar_close: Optional[Callable[[pd.DataFrame], None]] = None
@@ -239,7 +249,7 @@ class RealtimeBarBuilder:
     @property
     def merged_count_in_current_bar(self) -> int:
         """
-        Number of merged trades accumulated in the currently open trade-count bar.
+        Number of merged trades accumulated in the currently open event-driven bar.
         For time bars, this value is informational only.
         """
         return self._merged_count_in_bar
@@ -248,6 +258,19 @@ class RealtimeBarBuilder:
     def trades_per_bar_target(self) -> int:
         """Configured trades-per-bar threshold used to close a trade-count bar."""
         return self.trades_per_bar
+
+    @property
+    def volume_in_current_bar(self) -> float:
+        """
+        Cumulative merged-trade volume in the currently open event-driven bar.
+        For time bars, this value is informational only.
+        """
+        return self._volume_in_bar
+
+    @property
+    def volume_per_bar_target(self) -> float:
+        """Configured volume-per-bar threshold used to close a volume bar."""
+        return self.volume_per_bar
 
     def on_trade(self, timestamp: datetime, price: float, amount: float, side: str) -> None:
         """
@@ -271,8 +294,12 @@ class RealtimeBarBuilder:
 
         if self.mode == "time":
             self._handle_time_bar(ts, price, amount, side, vwap_dist, n_fills)
-        else:
+        elif self.mode == "trade_count":
             self._handle_trade_count_bar(ts, price, amount, side, vwap_dist, n_fills)
+        elif self.mode == "volume":
+            self._handle_volume_bar(ts, price, amount, side, vwap_dist, n_fills)
+        else:
+            raise ValueError(f"Unsupported bar mode: {self.mode}")
 
     def _handle_time_bar(
         self, ts: datetime, price: float, amount: float, side: str,
@@ -299,16 +326,39 @@ class RealtimeBarBuilder:
         vwap_dist: float = 0.0, n_fills: int = 1,
     ) -> None:
         if self._current_bar is None:
-            self._current_bar = Bar(timestamp=ts)
-            self._merged_count_in_bar = 0
+            self._start_new_event_bar(ts)
 
         self._current_bar.update(price, amount, side, vwap_dist, n_fills)
         self._merged_count_in_bar += 1
+        self._volume_in_bar += amount
 
         if self._merged_count_in_bar >= self.trades_per_bar:
             self._close_bar()
             self._current_bar = None
             self._merged_count_in_bar = 0
+            self._volume_in_bar = 0.0
+
+    def _handle_volume_bar(
+        self, ts: datetime, price: float, amount: float, side: str,
+        vwap_dist: float = 0.0, n_fills: int = 1,
+    ) -> None:
+        if self._current_bar is None:
+            self._start_new_event_bar(ts)
+
+        self._current_bar.update(price, amount, side, vwap_dist, n_fills)
+        self._merged_count_in_bar += 1
+        self._volume_in_bar += amount
+
+        if self._volume_in_bar >= self.volume_per_bar:
+            self._close_bar()
+            self._current_bar = None
+            self._merged_count_in_bar = 0
+            self._volume_in_bar = 0.0
+
+    def _start_new_event_bar(self, ts: datetime) -> None:
+        self._current_bar = Bar(timestamp=ts)
+        self._merged_count_in_bar = 0
+        self._volume_in_bar = 0.0
 
     def _close_bar(self) -> None:
         """Finalize the current bar and add to history."""

@@ -7,8 +7,9 @@ Architecture
                  "merged" (multi-fill taker orders combined)
   bar_mode:      "time"  (fixed-interval)
                  "trade_count" (N trades per bar)
+                 "volume" (target traded volume per bar)
 
-  → 4 combos:  raw+time, raw+trade_count, merged+time, merged+trade_count
+  → 6 combos:  raw/merged × time/trade_count/volume
 
 Two factor registries
 ─────────────────────
@@ -208,6 +209,43 @@ def estimate_avg_bar_seconds(bars: pd.DataFrame) -> float:
 # Bar builders
 # ═══════════════════════════════════════════════════════════
 
+def _build_event_bar_slices(
+    event_sizes: np.ndarray,
+    threshold: float,
+) -> list[tuple[int, int]]:
+    """
+    Slice a stream of events into sequential bars.
+
+    Each slice closes once cumulative event size reaches/exceeds `threshold`.
+    The last partial slice is preserved so tail events are not dropped.
+    """
+    if threshold <= 0:
+        raise ValueError(f"threshold must be positive, got {threshold}")
+
+    n = len(event_sizes)
+    if n == 0:
+        return []
+
+    slices: list[tuple[int, int]] = []
+    start = 0
+    acc = 0.0
+
+    for i, size in enumerate(event_sizes):
+        acc += float(size)
+        if acc >= threshold:
+            slices.append((start, i + 1))
+            start = i + 1
+            acc = 0.0
+
+    if start < n:
+        slices.append((start, n))
+
+    return slices
+
+
+def _bar_duration_sec(ts: np.ndarray, start: int, end: int) -> float:
+    return max((ts[end - 1] - ts[start]) / np.timedelta64(1, "s"), 0.001)
+
 def build_time_bars(trades_df: pd.DataFrame, freq: str = "1min") -> pd.DataFrame:
     """
     Basic time-based OHLCV bars.  Works with raw OR merged trades.
@@ -250,13 +288,50 @@ def build_trade_count_bars_raw(
     vol = trades_df["volume"].values
     side = trades_df["side"].values
 
-    n_bars = max(1, n // trades_per_bar)
+    slices = _build_event_bar_slices(np.ones(n, dtype=float), trades_per_bar)
     records = []
-    for b in range(n_bars):
-        s, e = b * trades_per_bar, min((b + 1) * trades_per_bar, n)
+    for s, e in slices:
         p, v, sd = price[s:e], vol[s:e], side[s:e]
         bm = sd == "buy"
-        dur = max((ts[e - 1] - ts[s]) / np.timedelta64(1, "s"), 0.001)
+        dur = _bar_duration_sec(ts, s, e)
+        records.append({
+            "timestamp": pd.Timestamp(ts[s]),
+            "open": p[0], "high": p.max(), "low": p.min(), "close": p[-1],
+            "volume": v.sum(), "n_trades": len(p),
+            "buy_volume": v[bm].sum() if bm.any() else 0.0,
+            "sell_volume": v[~bm].sum() if (~bm).any() else 0.0,
+            "bar_duration_sec": dur,
+        })
+    return pd.DataFrame(records).set_index("timestamp")
+
+
+def build_volume_bars_raw(
+    trades_df: pd.DataFrame,
+    volume_per_bar: float,
+) -> pd.DataFrame:
+    """
+    Volume bars from raw (or merged) trades — basic OHLCV only.
+
+    Bars close once cumulative traded volume reaches/exceeds `volume_per_bar`.
+    Because the last trade is not split, realized bar volume may slightly exceed
+    the target.
+    """
+    n = len(trades_df)
+    if n == 0:
+        return pd.DataFrame(columns=["open", "high", "low", "close", "volume",
+                                      "n_trades", "buy_volume", "sell_volume", "bar_duration_sec"])
+
+    ts = pd.to_datetime(trades_df["timestamp"]).values
+    price = trades_df["price"].values
+    vol = trades_df["volume"].values
+    side = trades_df["side"].values
+
+    slices = _build_event_bar_slices(vol, volume_per_bar)
+    records = []
+    for s, e in slices:
+        p, v, sd = price[s:e], vol[s:e], side[s:e]
+        bm = sd == "buy"
+        dur = _bar_duration_sec(ts, s, e)
         records.append({
             "timestamp": pd.Timestamp(ts[s]),
             "open": p[0], "high": p.max(), "low": p.min(), "close": p[-1],
@@ -304,16 +379,49 @@ def build_trade_count_bars_merged(
         return pd.DataFrame()
 
     ts = pd.to_datetime(merged_df["timestamp"]).values
-    n_bars = max(1, n // trades_per_bar)
+    slices = _build_event_bar_slices(np.ones(n, dtype=float), trades_per_bar)
 
     records = []
-    for b in range(n_bars):
-        s, e = b * trades_per_bar, min((b + 1) * trades_per_bar, n)
+    for s, e in slices:
         grp = merged_df.iloc[s:e]
         bar_ts = pd.Timestamp(ts[s])
         rec = _compute_merged_bar(grp, bar_ts)
         if rec is not None:
-            dur = max((ts[e - 1] - ts[s]) / np.timedelta64(1, "s"), 0.001)
+            dur = _bar_duration_sec(ts, s, e)
+            rec["bar_duration_sec"] = dur
+            records.append(rec)
+
+    if not records:
+        return pd.DataFrame()
+    return pd.DataFrame(records).set_index("timestamp")
+
+
+def build_volume_bars_merged(
+    merged_df: pd.DataFrame,
+    volume_per_bar: float,
+) -> pd.DataFrame:
+    """
+    Volume bars from merged trades — extended columns.
+
+    Bars close once cumulative merged-trade volume reaches/exceeds
+    `volume_per_bar`. Because a merged trade is not split, realized bar volume
+    may slightly exceed the target.
+    """
+    n = len(merged_df)
+    if n == 0:
+        return pd.DataFrame()
+
+    ts = pd.to_datetime(merged_df["timestamp"]).values
+    vol = merged_df["volume"].values
+    slices = _build_event_bar_slices(vol, volume_per_bar)
+
+    records = []
+    for s, e in slices:
+        grp = merged_df.iloc[s:e]
+        bar_ts = pd.Timestamp(ts[s])
+        rec = _compute_merged_bar(grp, bar_ts)
+        if rec is not None:
+            dur = _bar_duration_sec(ts, s, e)
             rec["bar_duration_sec"] = dur
             records.append(rec)
 
@@ -663,9 +771,10 @@ def compute_factor(factor_name: str, bars: pd.DataFrame, **kwargs) -> pd.Series:
 def build_bars(
     trades_df: pd.DataFrame,
     trade_source: str,    # "raw" or "merged"
-    bar_mode: str,        # "time" or "trade_count"
+    bar_mode: str,        # "time" or "trade_count" or "volume"
     freq: str = "1min",
     trades_per_bar: int = 200,
+    volume_per_bar: float = 0.0,
 ) -> pd.DataFrame:
     """
     Unified bar builder dispatching to the correct function.
@@ -673,16 +782,27 @@ def build_bars(
     trade_source × bar_mode → builder:
       raw    + time        → build_time_bars
       raw    + trade_count → build_trade_count_bars_raw
+      raw    + volume      → build_volume_bars_raw
       merged + time        → build_time_bars_merged
       merged + trade_count → build_trade_count_bars_merged
+      merged + volume      → build_volume_bars_merged
     """
+    if trade_source not in {"raw", "merged"}:
+        raise ValueError(f"Unsupported trade_source: {trade_source}")
+    if bar_mode not in {"time", "trade_count", "volume"}:
+        raise ValueError(f"Unsupported bar_mode: {bar_mode}")
+
     if trade_source == "raw":
         if bar_mode == "trade_count":
             return build_trade_count_bars_raw(trades_df, trades_per_bar)
+        if bar_mode == "volume":
+            return build_volume_bars_raw(trades_df, volume_per_bar)
         return build_time_bars(trades_df, freq)
     else:
         if bar_mode == "trade_count":
             return build_trade_count_bars_merged(trades_df, trades_per_bar)
+        if bar_mode == "volume":
+            return build_volume_bars_merged(trades_df, volume_per_bar)
         return build_time_bars_merged(trades_df, freq)
 
 
@@ -692,6 +812,7 @@ def load_and_prepare(
     bar_mode: str = "time",
     freq: str = "1min",
     trades_per_bar: int = 200,
+    volume_per_bar: float = 0.0,
     factor_name: str = "trade_imbalance",
     **factor_kwargs,
 ) -> Tuple[pd.DataFrame, pd.Series]:
@@ -706,6 +827,13 @@ def load_and_prepare(
     else:
         trades_df = raw
 
-    bars = build_bars(trades_df, trade_source, bar_mode, freq, trades_per_bar)
+    bars = build_bars(
+        trades_df,
+        trade_source,
+        bar_mode,
+        freq,
+        trades_per_bar,
+        volume_per_bar,
+    )
     factor = compute_factor(factor_name, bars, **factor_kwargs)
     return bars, factor

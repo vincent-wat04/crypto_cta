@@ -115,6 +115,7 @@ class RuleStrategyRunner:
             mode=config.bar_mode,
             bar_seconds=config.bar_seconds,
             trades_per_bar=config.trades_per_bar,
+            volume_per_bar=config.volume_per_bar,
             history_size=config.history_bars,
         )
         self.bar_builder.on_bar_close = self._on_bar_complete
@@ -175,6 +176,8 @@ class RuleStrategyRunner:
             config.bar_mode = str(params["bar_mode"])
         if "trades_per_bar" in params and float(params.get("trades_per_bar", 0)) > 0:
             config.trades_per_bar = int(params["trades_per_bar"])
+        if "volume_per_bar" in params and float(params.get("volume_per_bar", 0)) > 0:
+            config.volume_per_bar = float(params["volume_per_bar"])
         if "maker_fee" in params:
             config.maker_fee_bps = float(params["maker_fee"])
         if "taker_fee" in params:

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
-Run rule-based single-factor backtest with 4 data combos and optional optimization.
+Run rule-based single-factor backtest with time / trade_count / volume bars.
 
 Data architecture:
   trade_source:  raw     (raw aggTrades)
                  merged  (multi-fill taker orders combined)
   bar_mode:      time        (fixed-interval, e.g. 1min)
                  trade_count (N trades per bar)
+                 volume      (target volume per bar)
 
-  → 4 combos:  raw_time, raw_trade_count, merged_time, merged_trade_count
+  → 6 combos:  raw/merged × time/trade_count/volume
 
 Factor registries:
   Raw factors    — need only basic OHLCV bars
@@ -25,7 +26,7 @@ Usage:
   python scripts/run_rule_backtest.py --factor vwap_dist_sum_imbalance \\
       --trade_source merged --bar_mode trade_count --maker_fill_rate 0.7
 
-  # Grid search over all 4 combos
+  # Grid search over legacy 4 combos
   python scripts/run_rule_backtest.py --factor trade_imbalance --optimize --all_combos
 
   # All merged factors at once
@@ -62,17 +63,19 @@ logger = logging.getLogger(__name__)
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Rule-based single-factor backtest (4 data combos)")
+    p = argparse.ArgumentParser(description="Rule-based single-factor backtest")
 
     p.add_argument("--symbol", default="SOL/USDC")
     p.add_argument("--trade_source", choices=["raw", "merged"], default="raw",
                    help="Trade source: 'raw' aggTrades or 'merged' taker orders")
-    p.add_argument("--bar_mode", choices=["time", "trade_count"], default="time")
+    p.add_argument("--bar_mode", choices=["time", "trade_count", "volume"], default="time")
     p.add_argument("--freq", default="1min", help="Bar frequency for time bars")
     p.add_argument("--trades_per_bar", type=int, default=200,
                    help="Trades per bar (trade_count mode)")
+    p.add_argument("--volume_per_bar", type=float, default=0.0,
+                   help="Target volume per bar (volume mode)")
     p.add_argument("--all_combos", action="store_true",
-                   help="Run all 4 trade_source × bar_mode combinations")
+                   help="Run legacy 4 trade_source × bar_mode combinations")
     p.add_argument("--factor", nargs="+", default=["trade_imbalance"],
                    help="Factor(s) to backtest. Use 'all_raw', 'all_merged', or 'all'.")
 
@@ -220,6 +223,8 @@ def run_single(args, factor_name: str, bars: pd.DataFrame, factor: pd.Series,
         bar_seconds=bar_sec,
         bar_mode=bar_mode,
         trades_per_bar=args.trades_per_bar,
+        volume_per_bar=args.volume_per_bar,
+        trade_source=trade_source,
     )
 
     t0 = time.time()
@@ -269,6 +274,9 @@ def run_optimize(args, factor_name: str, bars: pd.DataFrame, factor: pd.Series,
 
 def prepare_data(args, trade_source: str, bar_mode: str):
     """Load raw trades, optionally merge, build bars."""
+    if bar_mode == "volume" and args.volume_per_bar <= 0:
+        raise ValueError("--volume_per_bar must be positive when --bar_mode volume is used")
+
     raw = load_cached_trades(args.symbol)
 
     if trade_source == "merged":
@@ -276,12 +284,23 @@ def prepare_data(args, trade_source: str, bar_mode: str):
     else:
         trades_df = raw
 
-    bars = build_bars(trades_df, trade_source, bar_mode, args.freq, args.trades_per_bar)
+    bars = build_bars(
+        trades_df,
+        trade_source,
+        bar_mode,
+        args.freq,
+        args.trades_per_bar,
+        args.volume_per_bar,
+    )
 
     if bar_mode == "trade_count":
         bar_sec = int(estimate_avg_bar_seconds(bars))
         logger.info("Built %d trade-count bars (%d trades/bar, ~%ds avg)",
                      len(bars), args.trades_per_bar, bar_sec)
+    elif bar_mode == "volume":
+        bar_sec = int(estimate_avg_bar_seconds(bars))
+        logger.info("Built %d volume bars (target_volume=%.6f, ~%ds avg)",
+                    len(bars), args.volume_per_bar, bar_sec)
     else:
         bar_sec = bar_seconds_from_freq(args.freq)
         logger.info("Built %d time bars (%s)", len(bars), args.freq)

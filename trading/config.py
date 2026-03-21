@@ -70,9 +70,10 @@ class RuleRunnerConfig(TradingConfig):
     factor_name: str = "vwap_dist_sum_imbalance"
 
     # ── Bar / timing ──
-    bar_mode: str = "time"         # "time" or "trade_count"
+    bar_mode: str = "time"         # "time" or "trade_count" or "volume"
     bar_seconds: int = 60          # for time-based bars
     trades_per_bar: int = 200      # for trade-count bars
+    volume_per_bar: float = 0.0    # for volume bars
     warmup_bars: int = 120
     history_bars: int = 500
 

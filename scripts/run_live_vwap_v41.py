@@ -381,8 +381,8 @@ class VwapV41Runner:
         # Heuristic from observed SOL/USDC flow on this project:
         # merged/raw ≈ 0.75-0.85. Use 1.35x raw buffer to improve odds of covering warmup.
         estimated_raw_needed = int(target_merged * 1.35)
-        estimated_raw_per_hour = 6_000
-        estimated_hours = max(2, min(24, estimated_raw_needed // estimated_raw_per_hour + 2))
+        estimated_raw_per_hour = 4_000
+        estimated_hours = max(2, min(48, estimated_raw_needed // estimated_raw_per_hour + 2))
 
         end_ms = int(self._run_start_ts.timestamp() * 1000)
         start_ms = int((self._run_start_ts - timedelta(hours=estimated_hours)).timestamp() * 1000)
@@ -544,6 +544,12 @@ class VwapV41Runner:
 
         signal_now = int(sig_series.iloc[-1]) if not np.isnan(sig_series.iloc[-1]) else 0
         price_now = float(bars_df["close"].iloc[-1])
+        asyncio.get_event_loop().create_task(
+            self._tg.send(
+                "🔥 <b>Bar closed</b>\n"
+                f"signal={signal_now} price={price_now} curr_pos={self._position}"
+            )
+        )
 
         # Desired position from signal
         desired_pos = float(signal_now)
@@ -910,10 +916,10 @@ def parse_args():
     p.add_argument("--ema_w1", type=int, default=10)
     p.add_argument("--fw2", type=int, default=10)
     p.add_argument("--ema_w2", type=int, default=10)
-    p.add_argument("--leverage", type=int, default=2)
+    p.add_argument("--leverage", type=int, default=1)
     p.add_argument("--position_usd", type=float, default=0.0,
                    help="Fixed USD notional per trade; 0 = use max_position_pct")
-    p.add_argument("--max_pct", type=float, default=0.30,
+    p.add_argument("--max_pct", type=float, default=0.20,
                    help="Max fraction of free balance per position")
     p.add_argument("--maker_fill_rate", type=float, default=0.7)
     p.add_argument("--log_dir", default="logs")

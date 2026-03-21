@@ -2031,3 +2031,103 @@ Traceback (most recent call last):
   File "/Users/quqiancheng/mean_reversion_cta_pm/.venv/lib/python3.9/site-packages/ccxt/base/exchange.py", line 498, in throttle
     time.sleep(delay / 1000.0)
 KeyboardInterrupt
+12:28:26 [vwap_v41_runner] INFO: Starting VwapV41Runner [simulate mode]
+12:28:26 [vwap_v41_runner] INFO: WS: wss://fstream.binance.com/ws/solusdc@aggTrade | tpb=500 | warmup=150 bars
+12:28:26 [vwap_v41_runner] INFO: Params: fw1=8 ema_w1=10 fw2=10 ema_w2=10
+12:28:27 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:28:27 [vwap_v41_runner] INFO: Starting REST prewarm: target_bars=150 target_merged≈75000 estimated_raw≈101250 lookback≈18h
+12:28:27 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:28:27 [trading.binance_perpetual_client] INFO: Binance Perpetual: using live
+12:28:27 [vwap_v41_runner] INFO: WebSocket connected (attempt=1)
+12:28:28 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:28:31 [vwap_v41_runner] INFO: First aggTrade received; stream is live
+12:28:31 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:29:27 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=19 hist_raw=0 buffered_ws=19 bars=0 trades=0 merged_in_bar=0/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=2s last_bar=n/a
+12:29:28 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:29:32 [trading.binance_perpetual_client] INFO: Fetched 63347 historical perp aggTrades in 64 requests [1773916106234, 1773980906234)
+12:29:32 [vwap_v41_runner] INFO: Prefill: bars=50/150 | hist_raw=63347 buffered_ws=20 | merged_in_bar=500/500
+12:29:32 [vwap_v41_runner] INFO: Prefill: bars=100/150 | hist_raw=63347 buffered_ws=20 | merged_in_bar=500/500
+12:29:32 [vwap_v41_runner] INFO: REST prewarm complete | historical_raw=63347 historical_bars=103 replayed_ws_raw=20 final_bars=103
+12:29:33 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:30:22 [vwap_v41_runner] INFO: Shutdown signal received — stopping runner
+12:30:22 [vwap_v41_runner] INFO: Stopping runner...
+12:30:22 [vwap_v41_runner] INFO: PnL summary | estimated=+0.0 bps | actual=+0.0 bps
+12:30:23 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:34:22 [vwap_v41_runner] INFO: Starting VwapV41Runner [simulate mode]
+12:34:22 [vwap_v41_runner] INFO: WS: wss://fstream.binance.com/ws/solusdc@aggTrade | tpb=500 | warmup=150 bars
+12:34:22 [vwap_v41_runner] INFO: Params: fw1=8 ema_w1=10 fw2=10 ema_w2=10
+12:34:23 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:34:23 [vwap_v41_runner] INFO: Starting REST prewarm: target_bars=150 target_merged≈75000 estimated_raw≈101250 lookback≈24h
+12:34:23 [vwap_v41_runner] INFO: WebSocket connected (attempt=1)
+12:34:24 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:34:24 [trading.binance_perpetual_client] INFO: Binance Perpetual: using live
+12:34:24 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:34:29 [vwap_v41_runner] INFO: First aggTrade received; stream is live
+12:34:29 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:35:23 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=33 hist_raw=0 buffered_ws=33 bars=0 trades=0 merged_in_bar=0/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=2s last_bar=n/a
+12:35:24 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:35:52 [trading.binance_perpetual_client] INFO: Fetched 87543 historical perp aggTrades in 88 requests [1773894862507, 1773981262507)
+12:35:52 [vwap_v41_runner] INFO: Prefill: bars=50/150 | hist_raw=87543 buffered_ws=48 | merged_in_bar=500/500
+12:35:53 [vwap_v41_runner] INFO: Prefill: bars=100/150 | hist_raw=87543 buffered_ws=48 | merged_in_bar=500/500
+12:35:53 [vwap_v41_runner] INFO: REST prewarm complete | historical_raw=87543 historical_bars=143 replayed_ws_raw=48 final_bars=144
+12:35:54 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:36:24 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=64 hist_raw=87543 buffered_ws=48 bars=144 trades=0 merged_in_bar=20/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=0s last_bar=31s
+12:37:24 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=104 hist_raw=87543 buffered_ws=48 bars=144 trades=0 merged_in_bar=55/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=2s last_bar=91s
+12:38:24 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=176 hist_raw=87543 buffered_ws=48 bars=144 trades=0 merged_in_bar=104/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=3s last_bar=151s
+12:39:24 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=226 hist_raw=87543 buffered_ws=48 bars=144 trades=0 merged_in_bar=137/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=1s last_bar=211s
+12:40:24 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=290 hist_raw=87543 buffered_ws=48 bars=144 trades=0 merged_in_bar=181/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=2s last_bar=271s
+12:40:25 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:41:25 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=337 hist_raw=87543 buffered_ws=48 bars=144 trades=0 merged_in_bar=218/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=0s last_bar=332s
+12:41:35 [vwap_v41_runner] INFO: Shutdown signal received — stopping runner
+12:41:35 [vwap_v41_runner] INFO: Stopping runner...
+12:41:35 [vwap_v41_runner] INFO: PnL summary | estimated=+0.0 bps | actual=+0.0 bps
+12:41:36 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:41:51 [vwap_v41_runner] INFO: Starting VwapV41Runner [simulate mode]
+12:41:51 [vwap_v41_runner] INFO: WS: wss://fstream.binance.com/ws/solusdc@aggTrade | tpb=500 | warmup=150 bars
+12:41:51 [vwap_v41_runner] INFO: Params: fw1=8 ema_w1=10 fw2=10 ema_w2=10
+12:41:51 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:41:51 [vwap_v41_runner] INFO: Starting REST prewarm: target_bars=150 target_merged≈75000 estimated_raw≈101250 lookback≈27h
+12:41:52 [vwap_v41_runner] INFO: WebSocket connected (attempt=1)
+12:41:52 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:41:52 [trading.binance_perpetual_client] INFO: Binance Perpetual: using live
+12:41:53 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:41:53 [vwap_v41_runner] INFO: First aggTrade received; stream is live
+12:41:53 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:42:51 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=66 hist_raw=0 buffered_ws=66 bars=0 trades=0 merged_in_bar=0/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=1s last_bar=n/a
+12:42:52 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:43:30 [trading.binance_perpetual_client] INFO: Fetched 97190 historical perp aggTrades in 98 requests [1773884511060, 1773981711060)
+12:43:31 [vwap_v41_runner] INFO: Prefill: bars=50/150 | hist_raw=97190 buffered_ws=88 | merged_in_bar=500/500
+12:43:31 [vwap_v41_runner] INFO: Prefill: bars=100/150 | hist_raw=97190 buffered_ws=88 | merged_in_bar=500/500
+12:43:31 [vwap_v41_runner] INFO: Prefill: bars=150/150 | hist_raw=97190 buffered_ws=88 | merged_in_bar=500/500
+12:43:31 [vwap_v41_runner] INFO: REST prewarm complete | historical_raw=97190 historical_bars=159 replayed_ws_raw=88 final_bars=160
+12:43:32 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:43:32 [vwap_v41_runner] INFO: Warmup satisfied immediately after REST prefill | bars=160/150
+12:43:33 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:43:52 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=102 hist_raw=97190 buffered_ws=88 bars=160 trades=0 merged_in_bar=82/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=0s last_bar=21s
+12:44:52 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=113 hist_raw=97190 buffered_ws=88 bars=160 trades=0 merged_in_bar=92/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=1s last_bar=81s
+12:45:52 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=133 hist_raw=97190 buffered_ws=88 bars=160 trades=0 merged_in_bar=111/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=5s last_bar=141s
+12:46:52 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=167 hist_raw=97190 buffered_ws=88 bars=160 trades=0 merged_in_bar=137/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=6s last_bar=201s
+12:47:52 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=186 hist_raw=97190 buffered_ws=88 bars=160 trades=0 merged_in_bar=154/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=4s last_bar=261s
+12:47:53 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+12:48:53 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=210 hist_raw=97190 buffered_ws=88 bars=160 trades=0 merged_in_bar=175/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=3s last_bar=322s
+13:07:16 [vwap_v41_runner] ERROR: WebSocket error: no close frame received or sent — reconnecting in 5s
+13:07:17 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+13:07:22 [vwap_v41_runner] INFO: WebSocket connected (attempt=2)
+13:07:23 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+13:41:09 [vwap_v41_runner] ERROR: WebSocket error: no close frame received or sent — reconnecting in 5s
+13:41:10 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+13:41:16 [vwap_v41_runner] INFO: WebSocket connected (attempt=3)
+13:41:17 [vwap_v41_runner] INFO: HEARTBEAT | raw_trades=260 hist_raw=97190 buffered_ws=88 bars=160 trades=0 merged_in_bar=217/500 pos=+0.0 pnl_est=+0.0 pnl_actual=+0.0 | last_msg=2011s last_bar=3466s
+13:41:18 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+13:41:18 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+13:41:18 [vwap_v41_runner] INFO: Market data stream recovered
+13:41:18 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+13:41:19 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+14:24:22 [vwap_v41_runner] ERROR: WebSocket error: no close frame received or sent — reconnecting in 5s
+14:24:24 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+14:24:30 [vwap_v41_runner] INFO: WebSocket connected (attempt=4)
+14:24:31 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"
+14:24:59 [vwap_v41_runner] INFO: Shutdown signal received — stopping runner
+14:24:59 [vwap_v41_runner] INFO: Stopping runner...
+14:24:59 [vwap_v41_runner] INFO: PnL summary | estimated=+0.0 bps | actual=+0.0 bps
+14:24:59 [httpx] INFO: HTTP Request: POST https://api.telegram.org/bot8537229519:AAHMOAGRRlE8zVui1rRdHnmHnyNr7D4tVN4/sendMessage "HTTP/1.1 200 OK"

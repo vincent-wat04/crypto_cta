@@ -42,8 +42,9 @@ class BacktestConfig:
     execution: BaseExecution = field(default_factory=MakerFirstExecution)
     initial_capital: float = 100_000.0
     bar_seconds: int = 60
-    bar_mode: str = "time"         # "time" or "trade_count"
+    bar_mode: str = "time"         # "time" or "trade_count" or "volume"
     trades_per_bar: int = 200
+    volume_per_bar: float = 0.0
     trade_source: str = "raw"      # "raw" or "merged"
     signal_flip: bool = False       # flip signal direction for inverse predictors
     hold_through_flat: bool = False  # if True, signal=0 means "keep current position"
@@ -186,9 +187,9 @@ def run_backtest(
     if not df.empty:
         df.set_index("timestamp", inplace=True)
 
-    # For trade-count bars, compute actual avg bar_seconds from data
+    # For event-driven bars, compute actual avg bar_seconds from data
     effective_bar_seconds = config.bar_seconds
-    if config.bar_mode == "trade_count" and "bar_duration_sec" in bars.columns:
+    if config.bar_mode in {"trade_count", "volume"} and "bar_duration_sec" in bars.columns:
         effective_bar_seconds = int(bars["bar_duration_sec"].median())
     metrics = _compute_metrics(df, config, effective_bar_seconds)
     all_params = {
@@ -204,6 +205,7 @@ def run_backtest(
         "bar_mode": config.bar_mode,
         "trade_source": config.trade_source,
         "trades_per_bar": config.trades_per_bar if config.bar_mode == "trade_count" else 0,
+        "volume_per_bar": config.volume_per_bar if config.bar_mode == "volume" else 0,
     }
 
     return BacktestResult(trades=df, metrics=metrics, params=all_params, factor_name=factor_name)
