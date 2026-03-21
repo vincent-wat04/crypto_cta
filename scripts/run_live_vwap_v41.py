@@ -381,7 +381,7 @@ class VwapV41Runner:
         # Heuristic from observed SOL/USDC flow on this project:
         # merged/raw ≈ 0.75-0.85. Use 1.35x raw buffer to improve odds of covering warmup.
         estimated_raw_needed = int(target_merged * 1.35)
-        estimated_raw_per_hour = 4_000
+        estimated_raw_per_hour = 3_000
         estimated_hours = max(2, min(48, estimated_raw_needed // estimated_raw_per_hour + 2))
 
         end_ms = int(self._run_start_ts.timestamp() * 1000)
@@ -909,7 +909,7 @@ def parse_args():
     p = argparse.ArgumentParser(description="Live/paper runner for vwap_dist_sum_v41")
     p.add_argument("--mode", default="simulate", choices=["simulate", "live"])
     p.add_argument("--symbol", default="SOL/USDC")
-    p.add_argument("--tpb", type=int, default=500, help="Trades per bar")
+    p.add_argument("--tpb", type=int, default=200, help="Trades per bar")
     p.add_argument("--warmup", type=int, default=150, help="Warmup bars before trading")
     p.add_argument("--history", type=int, default=200, help="Max bars to keep in memory")
     p.add_argument("--fw1", type=int, default=8)
