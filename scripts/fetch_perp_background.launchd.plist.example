@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Optional: run fetch on a schedule via launchd (no Terminal window).
+
+  1) Edit paths and ProgramArguments to match your machine.
+  2) Copy to:
+       ~/Library/LaunchAgents/com.mean_reversion_cta_pm.fetch_perp.plist
+  3) Load once:
+       launchctl load ~/Library/LaunchAgents/com.mean_reversion_cta_pm.fetch_perp.plist
+  4) Unload:
+       launchctl unload ~/Library/LaunchAgents/com.mean_reversion_cta_pm.fetch_perp.plist
+
+  StartCalendarInterval: every day 03:30 (adjust Hour/Minute as needed).
+  ThrottleInterval avoids relaunching too fast if the job exits early.
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.mean_reversion_cta_pm.fetch_perp</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/CHANGE_USER/mean_reversion_cta_pm/.venv/bin/python</string>
+		<string>-u</string>
+		<string>/Users/CHANGE_USER/mean_reversion_cta_pm/scripts/fetch_perpetual_trades.py</string>
+		<string>--start-date</string>
+		<string>2026-01-01</string>
+		<string>--symbols</string>
+		<string>SOL/USDC,BTC/USDC,ETH/USDC</string>
+		<string>--pause-between-symbols</string>
+		<string>8</string>
+	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>MR_DATA_ROOT</key>
+		<string>/Volumes/Lexar/mean_reversion_data</string>
+	</dict>
+	<key>StandardOutPath</key>
+	<string>/Users/CHANGE_USER/mean_reversion_cta_pm/notebooks/outputs/ofi_study/launchd_fetch_perp.log</string>
+	<key>StandardErrorPath</key>
+	<string>/Users/CHANGE_USER/mean_reversion_cta_pm/notebooks/outputs/ofi_study/launchd_fetch_perp.err.log</string>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>3</integer>
+		<key>Minute</key>
+		<integer>30</integer>
+	</dict>
+	<key>RunAtLoad</key>
+	<false/>
+	<key>ThrottleInterval</key>
+	<integer>300</integer>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>LowPriorityIO</key>
+	<true/>
+</dict>
+</plist>

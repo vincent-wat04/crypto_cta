@@ -1,0 +1,51 @@
+Symbols: ['SOL/USDC', 'BTC/USDC', 'ETH/USDC']
+Range: 2026-01-01 .. (exclusive) 2026-05-12
+
+=== SOL/USDC ===
+Traceback (most recent call last):
+  File "/Users/quqiancheng/opt/anaconda3/lib/python3.9/pathlib.py", line 1323, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Volumes/Lexar/mean_reversion_data/cache/SOL_USDC/trades_perp'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/quqiancheng/opt/anaconda3/lib/python3.9/pathlib.py", line 1323, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Volumes/Lexar/mean_reversion_data/cache/SOL_USDC'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/quqiancheng/opt/anaconda3/lib/python3.9/pathlib.py", line 1323, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Volumes/Lexar/mean_reversion_data/cache'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/quqiancheng/opt/anaconda3/lib/python3.9/pathlib.py", line 1323, in mkdir
+    self._accessor.mkdir(self, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Volumes/Lexar/mean_reversion_data'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/fetch_perpetual_trades.py", line 129, in <module>
+    main()
+  File "/Users/quqiancheng/mean_reversion_cta_pm/scripts/fetch_perpetual_trades.py", line 110, in main
+    df = load_agg_trades_perpetual(
+  File "/Users/quqiancheng/mean_reversion_cta_pm/utilities/binance_loader.py", line 254, in load_agg_trades_perpetual
+    cache_path = DataPaths.cache_trades(symbol, current, perpetual=True)
+  File "/Users/quqiancheng/mean_reversion_cta_pm/utilities/paths.py", line 34, in cache_trades
+    p.mkdir(parents=True, exist_ok=True)
+  File "/Users/quqiancheng/opt/anaconda3/lib/python3.9/pathlib.py", line 1327, in mkdir
+    self.parent.mkdir(parents=True, exist_ok=True)
+  File "/Users/quqiancheng/opt/anaconda3/lib/python3.9/pathlib.py", line 1327, in mkdir
+    self.parent.mkdir(parents=True, exist_ok=True)
+  File "/Users/quqiancheng/opt/anaconda3/lib/python3.9/pathlib.py", line 1327, in mkdir
+    self.parent.mkdir(parents=True, exist_ok=True)
+  [Previous line repeated 1 more time]
+  File "/Users/quqiancheng/opt/anaconda3/lib/python3.9/pathlib.py", line 1323, in mkdir
+    self._accessor.mkdir(self, mode)
+PermissionError: [Errno 13] Permission denied: '/Volumes/Lexar'
